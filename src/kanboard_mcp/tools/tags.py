@@ -39,7 +39,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get tags for
         """
         try:
-            tags = client.call_api("get_tags_by_project", project_id)
+            tags = client.call_api("get_tags_by_project", project_id=project_id)
             return {
                 "success": True,
                 "data": tags,
@@ -61,7 +61,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             tags: List of tag names to assign to the task
         """
         try:
-            success = client.call_api("set_task_tags", task_id, tags)
+            success = client.call_api("set_task_tags", task_id=task_id, tags=tags)
             return {
                 "success": True,
                 "data": {"updated": success}
@@ -81,7 +81,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             task_id: The ID of the task to get tags for
         """
         try:
-            tags = client.call_api("get_task_tags", task_id)
+            tags = client.call_api("get_task_tags", task_id=task_id)
             return {
                 "success": True,
                 "data": tags,

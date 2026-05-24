@@ -22,7 +22,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             category_id: The ID of the category to retrieve
         """
         try:
-            category = client.call_api("get_category", category_id)
+            category = client.call_api("get_category", category_id=category_id)
             return {
                 "success": True,
                 "data": category
@@ -42,7 +42,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get categories for
         """
         try:
-            categories = client.call_api("get_all_categories", project_id)
+            categories = client.call_api("get_all_categories", project_id=project_id)
             return {
                 "success": True,
                 "data": categories,

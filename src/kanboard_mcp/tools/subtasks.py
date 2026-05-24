@@ -61,7 +61,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             subtask_id: The ID of the subtask to retrieve
         """
         try:
-            subtask = client.call_api("get_subtask", subtask_id)
+            subtask = client.call_api("get_subtask", subtask_id=subtask_id)
             return {
                 "success": True,
                 "data": subtask
@@ -81,7 +81,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             task_id: The ID of the task to get subtasks for
         """
         try:
-            subtasks = client.call_api("get_all_subtasks", task_id)
+            subtasks = client.call_api("get_all_subtasks", task_id=task_id)
             return {
                 "success": True,
                 "data": subtasks,
@@ -140,7 +140,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             subtask_id: The ID of the subtask to remove
         """
         try:
-            success = client.call_api("remove_subtask", subtask_id)
+            success = client.call_api("remove_subtask", subtask_id=subtask_id)
             return {
                 "success": True,
                 "data": {"removed": success}

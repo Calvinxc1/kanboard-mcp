@@ -22,7 +22,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             user_id: The ID of the user to retrieve
         """
         try:
-            user = client.call_api("get_user", user_id)
+            user = client.call_api("get_user", user_id=user_id)
             return {
                 "success": True,
                 "data": user
@@ -42,7 +42,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             username: The username of the user to retrieve
         """
         try:
-            user = client.call_api("get_user_by_name", username)
+            user = client.call_api("get_user_by_name", username=username)
             return {
                 "success": True,
                 "data": user

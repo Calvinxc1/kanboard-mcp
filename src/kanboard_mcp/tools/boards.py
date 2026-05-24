@@ -22,7 +22,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get board for
         """
         try:
-            board = client.call_api("get_board", project_id)
+            board = client.call_api("get_board", project_id=project_id)
             return {
                 "success": True,
                 "data": board

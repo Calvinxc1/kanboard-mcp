@@ -22,7 +22,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get columns for
         """
         try:
-            columns = client.call_api("get_columns", project_id)
+            columns = client.call_api("get_columns", project_id=project_id)
             return {
                 "success": True,
                 "data": columns,
@@ -43,7 +43,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             column_id: The ID of the column to retrieve
         """
         try:
-            column = client.call_api("get_column", column_id)
+            column = client.call_api("get_column", column_id=column_id)
             return {
                 "success": True,
                 "data": column

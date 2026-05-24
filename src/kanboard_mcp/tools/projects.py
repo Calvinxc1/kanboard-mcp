@@ -39,7 +39,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to retrieve
         """
         try:
-            project = client.call_api("get_project_by_id", project_id)
+            project = client.call_api("get_project_by_id", project_id=project_id)
             return {
                 "success": True,
                 "data": project
@@ -59,7 +59,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_name: The name of the project to retrieve
         """
         try:
-            project = client.call_api("get_project_by_name", project_name)
+            project = client.call_api("get_project_by_name", project_name=project_name)
             return {
                 "success": True,
                 "data": project
@@ -79,7 +79,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get activity for
         """
         try:
-            activity = client.call_api("get_project_activity", project_id)
+            activity = client.call_api("get_project_activity", project_id=project_id)
             return {
                 "success": True,
                 "data": activity,
@@ -100,7 +100,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get activities for
         """
         try:
-            activities = client.call_api("get_project_activities", project_id)
+            activities = client.call_api("get_project_activities", project_id=project_id)
             return {
                 "success": True,
                 "data": activities,
