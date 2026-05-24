@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Offline regression test suite covering tool registration, JSON-RPC argument
+  shape, client error handling, server startup, configuration, task movement,
+  comments, tags, and representative wrappers.
+- Coverage reporting with a 75% minimum gate.
+- Pull-request CI for `dev` and `main` across Python 3.10 and 3.13.
+- Repository AI governance policy under `AGENTS.md` and `.governance/`.
+- Local editable MCP usage documentation for development workflows.
+
+### Fixed
+- `setTaskTags` now resolves the task's `project_id` before calling Kanboard's
+  `set_task_tags` API.
+- Several tool calls now pass `client.call_api` method names by keyword,
+  preserving the named-parameter contract.
+- Comment update calls use Kanboard's expected comment identifier parameter.
+
+### Changed
+- Removed the repository-level ignore rule that prevented tests from being
+  tracked.
+- Modernized Pydantic configuration validators for Pydantic v2.
+- Standardized lint/format baseline so CI can enforce `ruff check .`.
+
 ## [0.1.0] - 2025-01-17
 
 ### Added
@@ -44,5 +66,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Troubleshooting guide
 - Environment variable configuration guide
 
-[Unreleased]: https://github.com/yourusername/kanboard-mcp/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/yourusername/kanboard-mcp/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Calvinxc1/kanboard-mcp/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Calvinxc1/kanboard-mcp/releases/tag/v0.1.0

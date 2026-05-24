@@ -6,7 +6,7 @@ Thank you for your interest in contributing to the Kanboard MCP Server! This doc
 
 ### Prerequisites
 
-- Python 3.9 or higher
+- Python 3.10 or higher
 - Access to a Kanboard instance for testing
 - Git for version control
 
@@ -14,7 +14,7 @@ Thank you for your interest in contributing to the Kanboard MCP Server! This doc
 
 1. **Fork and clone the repository**
    ```bash
-   git clone https://github.com/hoducha/kanboard-mcp.git
+   git clone https://github.com/Calvinxc1/kanboard-mcp.git
    cd kanboard-mcp
    ```
 
@@ -42,18 +42,17 @@ Thank you for your interest in contributing to the Kanboard MCP Server! This doc
 
 This project uses several tools to maintain code quality:
 
-- **Black**: Code formatting
-- **isort**: Import sorting
+- **Ruff**: Linting, import sorting, and formatting
 - **mypy**: Type checking
-- **ruff**: Linting
 
 Run all checks before submitting:
 ```bash
-black src/
-isort src/
-mypy src/
-ruff src/
+uv run --extra dev ruff check .
+uv run --extra dev pytest -W error
 ```
+
+`mypy` is configured but not currently enforced in CI. Do not add it to required
+checks until the existing source tree passes cleanly.
 
 ### Testing
 
@@ -64,7 +63,7 @@ ruff src/
 
 2. **Test with Claude Desktop**
    - Configure Claude Desktop with this clone's entry point:
-     `/home/jcherry/Documents/storage/git/kanboard-mcp/.venv/bin/kanboard-mcp`
+     `/path/to/kanboard-mcp/.venv/bin/kanboard-mcp`
    - Fully quit and relaunch Claude Desktop after connector code changes
    - Test various API calls to ensure functionality
 
@@ -143,7 +142,7 @@ kanboard-mcp/
    ```
 
 2. **Make your changes** following the coding standards
-3. **Test thoroughly** with a real Kanboard instance
+3. **Add or update focused regression tests**
 4. **Update documentation** if needed
 5. **Commit your changes**
    ```bash
@@ -159,6 +158,10 @@ kanboard-mcp/
    - Clear description of changes
    - Testing instructions
    - Any breaking changes noted
+
+This repository is currently maintained as a fork while keeping the option open
+for upstream contribution. Keep changes scoped and reviewable so they can be
+sent upstream or maintained locally without unnecessary divergence.
 
 ### Commit Message Format
 

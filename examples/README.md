@@ -27,19 +27,19 @@ This directory contains example configurations for using the Kanboard MCP Server
 - Source edits in the working tree take effect after restarting the MCP client
 - Set up once with:
   ```bash
-  cd /home/jcherry/Documents/storage/git/kanboard-mcp
+  cd /path/to/kanboard-mcp
   uv venv
   uv pip install -e ".[dev]"
   ```
 - Configure Claude with:
   ```json
-  "command": "/home/jcherry/Documents/storage/git/kanboard-mcp/.venv/bin/kanboard-mcp"
+  "command": "/path/to/kanboard-mcp/.venv/bin/kanboard-mcp"
   ```
 
 **Option 2: Using uvx**
 - No installation required
 - Automatically manages Python environments
-- Always uses the latest published version
+- Uses the published package rather than local working-tree edits
 - Simplest configuration
 
 **Option 3: Using uvx with local development version**

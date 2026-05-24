@@ -42,9 +42,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/hoducha/kanboard-mcp"
-Repository = "https://github.com/hoducha/kanboard-mcp"
-Issues = "https://github.com/hoducha/kanboard-mcp/issues"
+Homepage = "https://github.com/Calvinxc1/kanboard-mcp"
+Repository = "https://github.com/Calvinxc1/kanboard-mcp"
+Issues = "https://github.com/Calvinxc1/kanboard-mcp/issues"
+"Original upstream" = "https://github.com/hoducha/kanboard-mcp"
 
 [project.scripts]
 kanboard-mcp = "kanboard_mcp.server:main"

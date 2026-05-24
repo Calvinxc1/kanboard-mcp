@@ -4,7 +4,7 @@
     
     "kanboard_option1_local_editable": {
       "description": "Option 1: Use this clone's editable virtualenv (recommended for local development)",
-      "command": "/home/jcherry/Documents/storage/git/kanboard-mcp/.venv/bin/kanboard-mcp",
+      "command": "/path/to/kanboard-mcp/.venv/bin/kanboard-mcp",
       "env": {
         "KANBOARD_URL": "https://your-kanboard.com/jsonrpc.php",
         "KANBOARD_API_TOKEN": "your_api_token_here",
