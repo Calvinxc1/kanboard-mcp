@@ -35,7 +35,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if color_id is not None:
                 category_data["color_id"] = color_id
 
-            category_id = client.call_api("create_category", **category_data)
+            category_id = client.call_api(method_name="create_category", **category_data)
             return {
                 "success": True,
                 "data": {"category_id": category_id}
@@ -67,7 +67,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if color_id is not None:
                 category_data["color_id"] = color_id
 
-            success = client.call_api("update_category", **category_data)
+            success = client.call_api(method_name="update_category", **category_data)
             return {
                 "success": True,
                 "data": {"updated": success}
@@ -87,7 +87,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             category_id: The ID of the category to retrieve
         """
         try:
-            category = client.call_api("get_category", category_id=category_id)
+            category = client.call_api(method_name="get_category", category_id=category_id)
             return {
                 "success": True,
                 "data": category
@@ -107,7 +107,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get categories for
         """
         try:
-            categories = client.call_api("get_all_categories", project_id=project_id)
+            categories = client.call_api(method_name="get_all_categories", project_id=project_id)
             return {
                 "success": True,
                 "data": categories,

@@ -38,7 +38,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if description is not None:
                 column_data["description"] = description
 
-            column_id = client.call_api("add_column", **column_data)
+            column_id = client.call_api(method_name="add_column", **column_data)
             return {
                 "success": True,
                 "data": {"column_id": column_id}
@@ -74,7 +74,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if description is not None:
                 column_data["description"] = description
 
-            success = client.call_api("update_column", **column_data)
+            success = client.call_api(method_name="update_column", **column_data)
             return {
                 "success": True,
                 "data": {"updated": success}
@@ -121,7 +121,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get columns for
         """
         try:
-            columns = client.call_api("get_columns", project_id=project_id)
+            columns = client.call_api(method_name="get_columns", project_id=project_id)
             return {
                 "success": True,
                 "data": columns,
@@ -143,7 +143,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             name: The column title to match
         """
         try:
-            columns = client.call_api("get_columns", project_id=project_id)
+            columns = client.call_api(method_name="get_columns", project_id=project_id)
             normalized_name = name.casefold()
             for column in columns or []:
                 if str(column.get("title", "")).casefold() == normalized_name:
@@ -171,7 +171,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             column_id: The ID of the column to retrieve
         """
         try:
-            column = client.call_api("get_column", column_id=column_id)
+            column = client.call_api(method_name="get_column", column_id=column_id)
             return {
                 "success": True,
                 "data": column

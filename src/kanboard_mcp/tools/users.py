@@ -22,7 +22,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             user_id: The ID of the user to retrieve
         """
         try:
-            user = client.call_api("get_user", user_id=user_id)
+            user = client.call_api(method_name="get_user", user_id=user_id)
             return {
                 "success": True,
                 "data": user
@@ -42,7 +42,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             username: The username of the user to retrieve
         """
         try:
-            user = client.call_api("get_user_by_name", username=username)
+            user = client.call_api(method_name="get_user_by_name", username=username)
             return {
                 "success": True,
                 "data": user
@@ -58,7 +58,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def getAllUsers() -> Dict[str, Any]:
         """Get all users."""
         try:
-            users = client.call_api("get_all_users")
+            users = client.call_api(method_name="get_all_users")
             return {
                 "success": True,
                 "data": users,
@@ -75,7 +75,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def getMe() -> Dict[str, Any]:
         """Get current user information."""
         try:
-            user = client.call_api("get_me")
+            user = client.call_api(method_name="get_me")
             return {
                 "success": True,
                 "data": user
@@ -91,7 +91,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def getMyDashboard() -> Dict[str, Any]:
         """Get current user's dashboard."""
         try:
-            dashboard = client.call_api("get_my_dashboard")
+            dashboard = client.call_api(method_name="get_my_dashboard")
             return {
                 "success": True,
                 "data": dashboard
@@ -107,7 +107,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def getMyActivityStream() -> Dict[str, Any]:
         """Get current user's activity stream."""
         try:
-            activity = client.call_api("get_my_activity_stream")
+            activity = client.call_api(method_name="get_my_activity_stream")
             return {
                 "success": True,
                 "data": activity,
@@ -124,7 +124,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def getMyProjectsList() -> Dict[str, Any]:
         """Get current user's projects list."""
         try:
-            projects = client.call_api("get_my_projects_list")
+            projects = client.call_api(method_name="get_my_projects_list")
             return {
                 "success": True,
                 "data": projects,
@@ -141,7 +141,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def getMyOverdueTasks() -> Dict[str, Any]:
         """Get current user's overdue tasks."""
         try:
-            tasks = client.call_api("get_my_overdue_tasks")
+            tasks = client.call_api(method_name="get_my_overdue_tasks")
             return {
                 "success": True,
                 "data": tasks,
@@ -158,7 +158,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def getMyProjects() -> Dict[str, Any]:
         """Get current user's projects."""
         try:
-            projects = client.call_api("get_my_projects")
+            projects = client.call_api(method_name="get_my_projects")
             return {
                 "success": True,
                 "data": projects,

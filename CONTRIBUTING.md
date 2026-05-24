@@ -110,7 +110,11 @@ kanboard-mcp/
            param2: Description of param2
        """
        try:
-           result = client.call_api("kanboard_api_method", param1, param2)
+           result = client.call_api(
+               method_name="kanboard_api_method",
+               param1=param1,
+               param2=param2,
+           )
            return {
                "success": True,
                "data": result

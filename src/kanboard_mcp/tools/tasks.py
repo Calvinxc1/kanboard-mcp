@@ -69,7 +69,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             swimlane_name: The destination swimlane name
         """
         try:
-            columns = client.call_api("get_columns", project_id=project_id)
+            columns = client.call_api(method_name="get_columns", project_id=project_id)
             column_id = None
             for column in columns or []:
                 if str(column.get("title", "")).casefold() == column_name.casefold():
@@ -83,7 +83,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 }
 
             swimlane_id = None
-            swimlanes = client.call_api("get_active_swimlanes", project_id=project_id)
+            swimlanes = client.call_api(method_name="get_active_swimlanes", project_id=project_id)
             normalized_swimlane = swimlane_name.casefold()
             for swimlane in swimlanes or []:
                 if str(swimlane.get("name", "")).casefold() == normalized_swimlane:
@@ -135,7 +135,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         results = []
         for task_data in tasks:
             try:
-                task_id = client.call_api("create_task", **task_data)
+                task_id = client.call_api(method_name="create_task", **task_data)
                 results.append({
                     "success": True,
                     "data": {"task_id": task_id}
@@ -164,7 +164,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         results = []
         for move_data in moves:
             try:
-                success = client.call_api("move_task_position", **move_data)
+                success = client.call_api(method_name="move_task_position", **move_data)
                 results.append({
                     "success": True,
                     "data": {"moved": success}
@@ -193,9 +193,9 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             if status_id is not None:
-                tasks = client.call_api("get_all_tasks", project_id=project_id, status_id=status_id)
+                tasks = client.call_api(method_name="get_all_tasks", project_id=project_id, status_id=status_id)
             else:
-                tasks = client.call_api("get_all_tasks", project_id=project_id)
+                tasks = client.call_api(method_name="get_all_tasks", project_id=project_id)
 
             return {
                 "success": True,
@@ -217,7 +217,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             task_id: The ID of the task to retrieve
         """
         try:
-            task = client.call_api("get_task", task_id=task_id)
+            task = client.call_api(method_name="get_task", task_id=task_id)
             return {
                 "success": True,
                 "data": task
@@ -238,7 +238,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             reference: The reference of the task to retrieve
         """
         try:
-            task = client.call_api("get_task_by_reference", project_id=project_id, reference=reference)
+            task = client.call_api(method_name="get_task_by_reference", project_id=project_id, reference=reference)
             return {
                 "success": True,
                 "data": task
@@ -254,7 +254,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def getOverdueTasks() -> Dict[str, Any]:
         """Get all overdue tasks."""
         try:
-            tasks = client.call_api("get_overdue_tasks")
+            tasks = client.call_api(method_name="get_overdue_tasks")
             return {
                 "success": True,
                 "data": tasks,
@@ -275,7 +275,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get overdue tasks for
         """
         try:
-            tasks = client.call_api("get_overdue_tasks_by_project", project_id=project_id)
+            tasks = client.call_api(method_name="get_overdue_tasks_by_project", project_id=project_id)
             return {
                 "success": True,
                 "data": tasks,
@@ -351,7 +351,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if tags is not None:
                 task_data["tags"] = tags
 
-            task_id = client.call_api("create_task", **task_data)
+            task_id = client.call_api(method_name="create_task", **task_data)
             return {
                 "success": True,
                 "data": {"task_id": task_id}
@@ -409,7 +409,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if reference is not None:
                 task_data["reference"] = reference
 
-            success = client.call_api("update_task", **task_data)
+            success = client.call_api(method_name="update_task", **task_data)
             return {
                 "success": True,
                 "data": {"updated": success}
@@ -429,7 +429,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             task_id: The ID of the task to open
         """
         try:
-            success = client.call_api("open_task", task_id=task_id)
+            success = client.call_api(method_name="open_task", task_id=task_id)
             return {
                 "success": True,
                 "data": {"opened": success}
@@ -449,7 +449,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             task_id: The ID of the task to close
         """
         try:
-            success = client.call_api("close_task", task_id=task_id)
+            success = client.call_api(method_name="close_task", task_id=task_id)
             return {
                 "success": True,
                 "data": {"closed": success}
@@ -469,7 +469,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             task_id: The ID of the task to remove
         """
         try:
-            success = client.call_api("remove_task", task_id=task_id)
+            success = client.call_api(method_name="remove_task", task_id=task_id)
             return {
                 "success": True,
                 "data": {"removed": success}
@@ -516,7 +516,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if status_id is not None:
                 search_params["status_id"] = status_id
 
-            tasks = client.call_api("search_tasks", **search_params)
+            tasks = client.call_api(method_name="search_tasks", **search_params)
             return {
                 "success": True,
                 "data": tasks,

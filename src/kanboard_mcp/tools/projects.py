@@ -35,13 +35,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 project_data["description"] = description
             if owner_id is not None:
                 project_data["owner_id"] = owner_id
-            else:
-                user = client.call_api("get_me")
-                project_data["owner_id"] = int(user["id"])
             if identifier is not None:
                 project_data["identifier"] = identifier
 
-            project_id = client.call_api("create_project", **project_data)
+            project_id = client.call_api(method_name="create_project", **project_data)
             return {
                 "success": True,
                 "data": {"project_id": project_id}
@@ -57,7 +54,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def updateProject(
         project_id: int,
         name: Optional[str] = None,
-        description: Optional[str] = None
+        description: Optional[str] = None,
+        owner_id: Optional[int] = None,
+        identifier: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Update a project.
 
@@ -65,6 +66,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to update
             name: Optional new project name
             description: Optional new project description
+            owner_id: Optional owner user ID
+            identifier: Optional project identifier
+            start_date: Optional project start date
+            end_date: Optional project end date
         """
         try:
             project_data = {"project_id": project_id}
@@ -72,8 +77,16 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 project_data["name"] = name
             if description is not None:
                 project_data["description"] = description
+            if owner_id is not None:
+                project_data["owner_id"] = owner_id
+            if identifier is not None:
+                project_data["identifier"] = identifier
+            if start_date is not None:
+                project_data["start_date"] = start_date
+            if end_date is not None:
+                project_data["end_date"] = end_date
 
-            success = client.call_api("update_project", **project_data)
+            success = client.call_api(method_name="update_project", **project_data)
             return {
                 "success": True,
                 "data": {"updated": success}
@@ -89,7 +102,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def getAllProjects() -> Dict[str, Any]:
         """Get all projects from Kanboard."""
         try:
-            projects = client.call_api("get_all_projects")
+            projects = client.call_api(method_name="get_all_projects")
             return {
                 "success": True,
                 "data": projects,
@@ -110,7 +123,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to retrieve
         """
         try:
-            project = client.call_api("get_project_by_id", project_id=project_id)
+            project = client.call_api(method_name="get_project_by_id", project_id=project_id)
             return {
                 "success": True,
                 "data": project
@@ -130,7 +143,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_name: The name of the project to retrieve
         """
         try:
-            project = client.call_api("get_project_by_name", project_name=project_name)
+            project = client.call_api(method_name="get_project_by_name", project_name=project_name)
             return {
                 "success": True,
                 "data": project
@@ -150,7 +163,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get activity for
         """
         try:
-            activity = client.call_api("get_project_activity", project_id=project_id)
+            activity = client.call_api(method_name="get_project_activity", project_id=project_id)
             return {
                 "success": True,
                 "data": activity,
@@ -171,7 +184,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get activities for
         """
         try:
-            activities = client.call_api("get_project_activities", project_id=project_id)
+            activities = client.call_api(method_name="get_project_activities", project_id=project_id)
             return {
                 "success": True,
                 "data": activities,

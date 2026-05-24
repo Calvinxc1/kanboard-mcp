@@ -24,7 +24,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             blob: The file content encoded in base64
         """
         try:
-            file_id = client.call_api("create_task_file", task_id=task_id, filename=filename, blob=blob)
+            file_id = client.call_api(method_name="create_task_file", task_id=task_id, filename=filename, blob=blob)
             return {
                 "success": True,
                 "data": {"file_id": file_id}
@@ -44,7 +44,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             task_id: The ID of the task to get files for
         """
         try:
-            files = client.call_api("get_all_task_files", task_id=task_id)
+            files = client.call_api(method_name="get_all_task_files", task_id=task_id)
             return {
                 "success": True,
                 "data": files,
@@ -65,7 +65,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             file_id: The ID of the file to retrieve
         """
         try:
-            file_info = client.call_api("get_task_file", file_id=file_id)
+            file_info = client.call_api(method_name="get_task_file", file_id=file_id)
             return {
                 "success": True,
                 "data": file_info
@@ -85,7 +85,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             file_id: The ID of the file to download
         """
         try:
-            file_content = client.call_api("download_task_file", file_id=file_id)
+            file_content = client.call_api(method_name="download_task_file", file_id=file_id)
             return {
                 "success": True,
                 "data": {"content": file_content}
@@ -105,7 +105,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             file_id: The ID of the file to remove
         """
         try:
-            success = client.call_api("remove_task_file", file_id=file_id)
+            success = client.call_api(method_name="remove_task_file", file_id=file_id)
             return {
                 "success": True,
                 "data": {"removed": success}
@@ -125,7 +125,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             task_id: The ID of the task to remove all files from
         """
         try:
-            success = client.call_api("remove_all_task_files", task_id=task_id)
+            success = client.call_api(method_name="remove_all_task_files", task_id=task_id)
             return {
                 "success": True,
                 "data": {"removed": success}

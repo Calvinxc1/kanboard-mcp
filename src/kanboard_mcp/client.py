@@ -4,6 +4,7 @@ import json
 import time
 from typing import Any, Dict, Optional, Union
 import logging
+from urllib.error import HTTPError
 
 import kanboard
 
@@ -141,12 +142,28 @@ class KanboardClient:
 
             except KanboardAPIError:
                 raise
+            except HTTPError as e:
+                last_exception = e
+                if 400 <= e.code < 500:
+                    if e.code == 401:
+                        raise KanboardAuthenticationError(f"Authentication failed: {e}")
+                    raise KanboardAPIError(f"API error: {e}", code=e.code)
+                logger.warning(f"HTTP error in {method_name} (attempt {attempt + 1}): {e}")
             except kanboard.ClientError as e:
                 last_exception = e
+                error_message = str(e)
+
+                if "HTTP Error 401" in error_message:
+                    raise KanboardAuthenticationError(f"Authentication failed: {e}")
+                if "HTTP Error 403" in error_message:
+                    raise KanboardAPIError(f"API error: {e}", code=403)
+                if "HTTP Error 404" in error_message:
+                    raise KanboardAPIError(f"API error: {e}", code=404)
+
                 logger.warning(f"API error in {method_name} (attempt {attempt + 1}): {e}")
 
                 # Don't retry on authentication errors
-                if "authentication" in str(e).lower() or "unauthorized" in str(e).lower():
+                if "authentication" in error_message.lower() or "unauthorized" in error_message.lower():
                     raise KanboardAuthenticationError(f"Authentication failed: {e}")
 
                 # Don't retry on client errors (4xx)
@@ -185,7 +202,7 @@ class KanboardClient:
     def test_connection(self) -> Dict[str, Any]:
         """Test connection to Kanboard and return user info."""
         try:
-            result = self.call_api("get_me")
+            result = self.call_api(method_name="get_me")
             return {
                 "connected": True,
                 "user": result,
@@ -203,8 +220,8 @@ class KanboardClient:
     def get_server_info(self) -> Dict[str, Any]:
         """Get server information and capabilities."""
         try:
-            user_info = self.call_api("get_me")
-            version = self.call_api("get_version")
+            user_info = self.call_api(method_name="get_me")
+            version = self.call_api(method_name="get_version")
 
             return {
                 "server_version": version,

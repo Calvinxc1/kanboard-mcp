@@ -35,7 +35,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if description is not None:
                 swimlane_data["description"] = description
 
-            swimlane_id = client.call_api("add_swimlane", **swimlane_data)
+            swimlane_id = client.call_api(method_name="add_swimlane", **swimlane_data)
             return {
                 "success": True,
                 "data": {"swimlane_id": swimlane_id}
@@ -72,7 +72,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if description is not None:
                 swimlane_data["description"] = description
 
-            success = client.call_api("update_swimlane", **swimlane_data)
+            success = client.call_api(method_name="update_swimlane", **swimlane_data)
             return {
                 "success": True,
                 "data": {"updated": success}
@@ -123,7 +123,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project
         """
         try:
-            swimlanes = client.call_api("get_active_swimlanes", project_id=project_id)
+            swimlanes = client.call_api(method_name="get_active_swimlanes", project_id=project_id)
             return {
                 "success": True,
                 "data": swimlanes,
