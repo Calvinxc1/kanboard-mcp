@@ -6,5 +6,7 @@ rules:
   - Do not commit local caches, virtualenvs, coverage databases, IDE state, or private environment files.
   - Update CHANGELOG.md for user-visible, operator-visible, or release-relevant changes unless explicitly deferred.
   - Internal-only test changes need no changelog entry unless they materially affect contributor workflow or documented behavior.
+  - Run CI only on pull requests to protected integration branches, not on ordinary feature-branch pushes.
+  - Treat `main` and `dev` as protected integration branches unless repository branch policy says otherwise.
   - Before pushing, report the branch and remote being updated.
   - If release impact is unclear, ask whether a changelog or version update is expected.
