@@ -146,8 +146,20 @@ def test_batch_move_tasks_returns_partial_failures(fake_mcp):
 
     result = fake_mcp.tools["batchMoveTasks"](
         [
-            {"project_id": 1, "task_id": 1, "column_id": 2, "position": 1, "swimlane_id": 3},
-            {"project_id": 1, "task_id": 2, "column_id": 2, "position": 1, "swimlane_id": 3},
+            {
+                "project_id": 1,
+                "task_id": 1,
+                "column_id": 2,
+                "position": 1,
+                "swimlane_id": 3,
+            },
+            {
+                "project_id": 1,
+                "task_id": 2,
+                "column_id": 2,
+                "position": 1,
+                "swimlane_id": 3,
+            },
         ]
     )
 

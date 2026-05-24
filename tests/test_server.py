@@ -69,7 +69,10 @@ def test_server_registers_tools_and_connection_helpers(monkeypatch):
         "data": {"server_version": "1.2.3"},
     }
     config_info = server.mcp.tools["get_config_info"]()
-    assert config_info["data"]["kanboard_url"] == "https://kanboard.example.test/jsonrpc.php"
+    assert (
+        config_info["data"]["kanboard_url"]
+        == "https://kanboard.example.test/jsonrpc.php"
+    )
     assert "password" not in config_info["data"]
 
 
@@ -124,7 +127,9 @@ def test_server_run_raises_when_connection_fails(monkeypatch):
 
 def test_create_server_loads_config_when_omitted(monkeypatch):
     monkeypatch.setattr("kanboard_mcp.server.FastMCP", FakeFastMCP)
-    monkeypatch.setattr("kanboard_mcp.server.create_client", lambda _: FakeServerClient())
+    monkeypatch.setattr(
+        "kanboard_mcp.server.create_client", lambda _: FakeServerClient()
+    )
     monkeypatch.setattr("kanboard_mcp.server.load_config", lambda: make_config())
 
     server = create_server()
@@ -140,7 +145,9 @@ def test_create_server_loads_config_when_omitted(monkeypatch):
         (RuntimeError("boom"), "Unexpected error: boom"),
     ],
 )
-def test_main_exits_with_error_messages(monkeypatch, capsys, exception, expected_stderr):
+def test_main_exits_with_error_messages(
+    monkeypatch, capsys, exception, expected_stderr
+):
     import kanboard_mcp.server as server_module
 
     monkeypatch.setattr(

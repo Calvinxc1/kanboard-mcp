@@ -1,38 +1,35 @@
 """Main MCP server implementation for Kanboard API."""
 
-import asyncio
 import logging
 import sys
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
-from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
+from mcp.server.fastmcp import FastMCP
 
+from .client import create_client
 from .config import Config, load_config
-from .client import KanboardClient, create_client, KanboardClientError
 from .tools import (
-    projects,
-    tasks,
+    boards,
     categories,
     columns,
-    boards,
     comments,
-    users,
+    files,
     links,
+    projects,
     subtasks,
     swimlanes,
     tags,
-    files,
+    tasks,
+    users,
 )
-
 
 # Load environment variables
 load_dotenv()
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -75,7 +72,7 @@ class KanboardMCPServer:
         ]
 
         for module in tool_modules:
-            if hasattr(module, 'register_tools'):
+            if hasattr(module, "register_tools"):
                 module.register_tools(self.mcp, self.client)
                 logger.info(f"Registered tools from {module.__name__}")
 
@@ -83,39 +80,27 @@ class KanboardMCPServer:
         """Register connection and server management tools."""
 
         @self.mcp.tool()
-        def test_connection() -> Dict[str, Any]:
+        def test_connection() -> dict[str, Any]:
             """Test connection to Kanboard server and return status."""
             try:
                 result = self.client.test_connection()
-                return {
-                    "success": True,
-                    "data": result
-                }
+                return {"success": True, "data": result}
             except Exception as e:
                 logger.error(f"Connection test failed: {e}")
-                return {
-                    "success": False,
-                    "error": str(e)
-                }
+                return {"success": False, "error": str(e)}
 
         @self.mcp.tool()
-        def get_server_info() -> Dict[str, Any]:
+        def get_server_info() -> dict[str, Any]:
             """Get Kanboard server information and capabilities."""
             try:
                 result = self.client.get_server_info()
-                return {
-                    "success": True,
-                    "data": result
-                }
+                return {"success": True, "data": result}
             except Exception as e:
                 logger.error(f"Failed to get server info: {e}")
-                return {
-                    "success": False,
-                    "error": str(e)
-                }
+                return {"success": False, "error": str(e)}
 
         @self.mcp.tool()
-        def get_config_info() -> Dict[str, Any]:
+        def get_config_info() -> dict[str, Any]:
             """Get current configuration information (without sensitive data)."""
             return {
                 "success": True,
@@ -129,13 +114,15 @@ class KanboardMCPServer:
                     "kanboard_username": self.config.kanboard.username,
                     "verify_ssl": self.config.kanboard.verify_ssl,
                     "timeout": self.config.kanboard.timeout,
-                }
+                },
             }
 
     def run(self) -> None:
         """Run the MCP server."""
         try:
-            logger.info(f"Starting {self.config.server.server_name} v{self.config.server.server_version}")
+            logger.info(
+                f"Starting {self.config.server.server_name} v{self.config.server.server_version}"
+            )
             logger.info(f"Connecting to Kanboard at {self.config.kanboard.url}")
 
             # Test connection on startup
@@ -143,8 +130,12 @@ class KanboardMCPServer:
             if connection_result.get("connected"):
                 logger.info("Successfully connected to Kanboard")
             else:
-                logger.error(f"Failed to connect to Kanboard: {connection_result.get('error')}")
-                raise ConnectionError(f"Cannot connect to Kanboard: {connection_result.get('error')}")
+                logger.error(
+                    f"Failed to connect to Kanboard: {connection_result.get('error')}"
+                )
+                raise ConnectionError(
+                    f"Cannot connect to Kanboard: {connection_result.get('error')}"
+                )
 
             # Run the server
             self.mcp.run()
@@ -156,7 +147,7 @@ class KanboardMCPServer:
             raise
 
 
-def create_server(config: Optional[Config] = None) -> KanboardMCPServer:
+def create_server(config: Config | None = None) -> KanboardMCPServer:
     """Create a new Kanboard MCP server instance."""
     if config is None:
         config = load_config()

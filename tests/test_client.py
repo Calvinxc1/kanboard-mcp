@@ -64,7 +64,9 @@ def test_parse_response_returns_result():
 
 
 def test_parse_response_preserves_json_rpc_error_code():
-    response = b'{"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params"},"id":1}'
+    response = (
+        b'{"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params"},"id":1}'
+    )
 
     with pytest.raises(KanboardAPIError) as exc_info:
         KanboardClient._parse_response_with_error_details(response)
@@ -122,7 +124,9 @@ def test_create_client_failure_is_connection_error(monkeypatch):
     monkeypatch.setattr("kanboard_mcp.client.kanboard.Client", fail_create)
     client = KanboardClient(make_config())
 
-    with pytest.raises(KanboardConnectionError, match="Failed to create Kanboard client"):
+    with pytest.raises(
+        KanboardConnectionError, match="Failed to create Kanboard client"
+    ):
         client.connect()
 
 

@@ -15,11 +15,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def moveTaskPosition(
-        project_id: int,
-        task_id: int,
-        column_id: int,
-        position: int,
-        swimlane_id: int
+        project_id: int, task_id: int, column_id: int, position: int, swimlane_id: int
     ) -> dict[str, Any]:
         """Move a task to a board position.
 
@@ -39,16 +35,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 position=position,
                 swimlane_id=swimlane_id,
             )
-            return {
-                "success": True,
-                "data": {"moved": success}
-            }
+            return {"success": True, "data": {"moved": success}}
         except KanboardClientError as e:
             logger.error(f"Error moving task {task_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def moveTaskToColumnByName(
@@ -56,7 +46,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         task_id: int,
         column_name: str,
         position: int = 1,
-        swimlane_name: str = "Default swimlane"
+        swimlane_name: str = "Default swimlane",
     ) -> dict[str, Any]:
         """Move a task to a column by resolving column and swimlane names.
 
@@ -78,11 +68,13 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if column_id is None:
                 return {
                     "success": False,
-                    "error": f"Column '{column_name}' not found in project {project_id}"
+                    "error": f"Column '{column_name}' not found in project {project_id}",
                 }
 
             swimlane_id = None
-            swimlanes = client.call_api(method_name="get_active_swimlanes", project_id=project_id)
+            swimlanes = client.call_api(
+                method_name="get_active_swimlanes", project_id=project_id
+            )
             normalized_swimlane = swimlane_name.casefold()
             for swimlane in swimlanes or []:
                 if str(swimlane.get("name", "")).casefold() == normalized_swimlane:
@@ -98,7 +90,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             if swimlane_id is None:
                 return {
                     "success": False,
-                    "error": f"Swimlane '{swimlane_name}' not found in project {project_id}"
+                    "error": f"Swimlane '{swimlane_name}' not found in project {project_id}",
                 }
 
             success = client.call_api(
@@ -114,15 +106,12 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 "data": {
                     "moved": success,
                     "column_id": column_id,
-                    "swimlane_id": swimlane_id
-                }
+                    "swimlane_id": swimlane_id,
+                },
             }
         except KanboardClientError as e:
             logger.error(f"Error moving task {task_id} to column '{column_name}': {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def batchCreateTasks(tasks: list[dict[str, Any]]) -> dict[str, Any]:
@@ -135,22 +124,15 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         for task_data in tasks:
             try:
                 task_id = client.call_api(method_name="create_task", **task_data)
-                results.append({
-                    "success": True,
-                    "data": {"task_id": task_id}
-                })
+                results.append({"success": True, "data": {"task_id": task_id}})
             except KanboardClientError as e:
                 logger.error(f"Error batch creating task: {e}")
-                results.append({
-                    "success": False,
-                    "error": str(e),
-                    "input": task_data
-                })
+                results.append({"success": False, "error": str(e), "input": task_data})
 
         return {
             "success": all(result["success"] for result in results),
             "data": results,
-            "count": len(results)
+            "count": len(results),
         }
 
     @mcp.tool()
@@ -164,22 +146,15 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         for move_data in moves:
             try:
                 success = client.call_api(method_name="move_task_position", **move_data)
-                results.append({
-                    "success": True,
-                    "data": {"moved": success}
-                })
+                results.append({"success": True, "data": {"moved": success}})
             except KanboardClientError as e:
                 logger.error(f"Error batch moving task: {e}")
-                results.append({
-                    "success": False,
-                    "error": str(e),
-                    "input": move_data
-                })
+                results.append({"success": False, "error": str(e), "input": move_data})
 
         return {
             "success": all(result["success"] for result in results),
             "data": results,
-            "count": len(results)
+            "count": len(results),
         }
 
     @mcp.tool()
@@ -192,21 +167,20 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             if status_id is not None:
-                tasks = client.call_api(method_name="get_all_tasks", project_id=project_id, status_id=status_id)
+                tasks = client.call_api(
+                    method_name="get_all_tasks",
+                    project_id=project_id,
+                    status_id=status_id,
+                )
             else:
-                tasks = client.call_api(method_name="get_all_tasks", project_id=project_id)
+                tasks = client.call_api(
+                    method_name="get_all_tasks", project_id=project_id
+                )
 
-            return {
-                "success": True,
-                "data": tasks,
-                "count": len(tasks) if tasks else 0
-            }
+            return {"success": True, "data": tasks, "count": len(tasks) if tasks else 0}
         except KanboardClientError as e:
             logger.error(f"Error getting all tasks for project {project_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def getTask(task_id: int) -> dict[str, Any]:
@@ -217,16 +191,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             task = client.call_api(method_name="get_task", task_id=task_id)
-            return {
-                "success": True,
-                "data": task
-            }
+            return {"success": True, "data": task}
         except KanboardClientError as e:
             logger.error(f"Error getting task {task_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def getTaskByReference(project_id: int, reference: str) -> dict[str, Any]:
@@ -237,34 +205,27 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             reference: The reference of the task to retrieve
         """
         try:
-            task = client.call_api(method_name="get_task_by_reference", project_id=project_id, reference=reference)
-            return {
-                "success": True,
-                "data": task
-            }
+            task = client.call_api(
+                method_name="get_task_by_reference",
+                project_id=project_id,
+                reference=reference,
+            )
+            return {"success": True, "data": task}
         except KanboardClientError as e:
-            logger.error(f"Error getting task with reference '{reference}' in project {project_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            logger.error(
+                f"Error getting task with reference '{reference}' in project {project_id}: {e}"
+            )
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def getOverdueTasks() -> dict[str, Any]:
         """Get all overdue tasks."""
         try:
             tasks = client.call_api(method_name="get_overdue_tasks")
-            return {
-                "success": True,
-                "data": tasks,
-                "count": len(tasks) if tasks else 0
-            }
+            return {"success": True, "data": tasks, "count": len(tasks) if tasks else 0}
         except KanboardClientError as e:
             logger.error(f"Error getting overdue tasks: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def getOverdueTasksByProject(project_id: int) -> dict[str, Any]:
@@ -274,18 +235,13 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project to get overdue tasks for
         """
         try:
-            tasks = client.call_api(method_name="get_overdue_tasks_by_project", project_id=project_id)
-            return {
-                "success": True,
-                "data": tasks,
-                "count": len(tasks) if tasks else 0
-            }
+            tasks = client.call_api(
+                method_name="get_overdue_tasks_by_project", project_id=project_id
+            )
+            return {"success": True, "data": tasks, "count": len(tasks) if tasks else 0}
         except KanboardClientError as e:
             logger.error(f"Error getting overdue tasks for project {project_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def createTask(
@@ -301,7 +257,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         swimlane_id: int | None = None,
         priority: int | None = None,
         reference: str | None = None,
-        tags: list[str] | None = None
+        tags: list[str] | None = None,
     ) -> dict[str, Any]:
         """Create a new task.
 
@@ -351,16 +307,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 task_data["tags"] = tags
 
             task_id = client.call_api(method_name="create_task", **task_data)
-            return {
-                "success": True,
-                "data": {"task_id": task_id}
-            }
+            return {"success": True, "data": {"task_id": task_id}}
         except KanboardClientError as e:
             logger.error(f"Error creating task: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def updateTask(
@@ -372,7 +322,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         date_due: str | None = None,
         color_id: str | None = None,
         priority: int | None = None,
-        reference: str | None = None
+        reference: str | None = None,
     ) -> dict[str, Any]:
         """Update an existing task.
 
@@ -409,16 +359,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 task_data["reference"] = reference
 
             success = client.call_api(method_name="update_task", **task_data)
-            return {
-                "success": True,
-                "data": {"updated": success}
-            }
+            return {"success": True, "data": {"updated": success}}
         except KanboardClientError as e:
             logger.error(f"Error updating task {task_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def openTask(task_id: int) -> dict[str, Any]:
@@ -429,16 +373,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             success = client.call_api(method_name="open_task", task_id=task_id)
-            return {
-                "success": True,
-                "data": {"opened": success}
-            }
+            return {"success": True, "data": {"opened": success}}
         except KanboardClientError as e:
             logger.error(f"Error opening task {task_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def closeTask(task_id: int) -> dict[str, Any]:
@@ -449,16 +387,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             success = client.call_api(method_name="close_task", task_id=task_id)
-            return {
-                "success": True,
-                "data": {"closed": success}
-            }
+            return {"success": True, "data": {"closed": success}}
         except KanboardClientError as e:
             logger.error(f"Error closing task {task_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def removeTask(task_id: int) -> dict[str, Any]:
@@ -469,16 +401,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             success = client.call_api(method_name="remove_task", task_id=task_id)
-            return {
-                "success": True,
-                "data": {"removed": success}
-            }
+            return {"success": True, "data": {"removed": success}}
         except KanboardClientError as e:
             logger.error(f"Error removing task {task_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def searchTasks(
@@ -487,7 +413,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         category_id: int | None = None,
         owner_id: int | None = None,
         due_date: str | None = None,
-        status_id: int | None = None
+        status_id: int | None = None,
     ) -> dict[str, Any]:
         """Search tasks in a project.
 
@@ -500,10 +426,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             status_id: Optional status ID to filter
         """
         try:
-            search_params = {
-                "project_id": project_id,
-                "query": query
-            }
+            search_params = {"project_id": project_id, "query": query}
 
             # Add optional filters
             if category_id is not None:
@@ -516,14 +439,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 search_params["status_id"] = status_id
 
             tasks = client.call_api(method_name="search_tasks", **search_params)
-            return {
-                "success": True,
-                "data": tasks,
-                "count": len(tasks) if tasks else 0
-            }
+            return {"success": True, "data": tasks, "count": len(tasks) if tasks else 0}
         except KanboardClientError as e:
             logger.error(f"Error searching tasks: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}

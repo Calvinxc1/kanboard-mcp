@@ -15,10 +15,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def addColumn(
-        project_id: int,
-        title: str,
-        task_limit: int = 0,
-        description: str | None = None
+        project_id: int, title: str, task_limit: int = 0, description: str | None = None
     ) -> dict[str, Any]:
         """Add a column to a project.
 
@@ -38,23 +35,17 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 column_data["description"] = description
 
             column_id = client.call_api(method_name="add_column", **column_data)
-            return {
-                "success": True,
-                "data": {"column_id": column_id}
-            }
+            return {"success": True, "data": {"column_id": column_id}}
         except KanboardClientError as e:
             logger.error(f"Error adding column '{title}' to project {project_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def updateColumn(
         column_id: int,
         title: str | None = None,
         task_limit: int | None = None,
-        description: str | None = None
+        description: str | None = None,
     ) -> dict[str, Any]:
         """Update a column.
 
@@ -74,19 +65,15 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 column_data["description"] = description
 
             success = client.call_api(method_name="update_column", **column_data)
-            return {
-                "success": True,
-                "data": {"updated": success}
-            }
+            return {"success": True, "data": {"updated": success}}
         except KanboardClientError as e:
             logger.error(f"Error updating column {column_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def changeColumnPosition(project_id: int, column_id: int, position: int) -> dict[str, Any]:
+    def changeColumnPosition(
+        project_id: int, column_id: int, position: int
+    ) -> dict[str, Any]:
         """Change a column's position in a project.
 
         Args:
@@ -101,16 +88,12 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 column_id=column_id,
                 position=position,
             )
-            return {
-                "success": True,
-                "data": {"moved": success}
-            }
+            return {"success": True, "data": {"moved": success}}
         except KanboardClientError as e:
-            logger.error(f"Error moving column {column_id} in project {project_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            logger.error(
+                f"Error moving column {column_id} in project {project_id}: {e}"
+            )
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def getColumns(project_id: int) -> dict[str, Any]:
@@ -124,14 +107,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             return {
                 "success": True,
                 "data": columns,
-                "count": len(columns) if columns else 0
+                "count": len(columns) if columns else 0,
             }
         except KanboardClientError as e:
             logger.error(f"Error getting columns for project {project_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def getColumnByName(project_id: int, name: str) -> dict[str, Any]:
@@ -146,21 +126,15 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             normalized_name = name.casefold()
             for column in columns or []:
                 if str(column.get("title", "")).casefold() == normalized_name:
-                    return {
-                        "success": True,
-                        "data": column
-                    }
+                    return {"success": True, "data": column}
 
             return {
                 "success": False,
-                "error": f"Column '{name}' not found in project {project_id}"
+                "error": f"Column '{name}' not found in project {project_id}",
             }
         except KanboardClientError as e:
             logger.error(f"Error finding column '{name}' in project {project_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def getColumn(column_id: int) -> dict[str, Any]:
@@ -171,13 +145,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             column = client.call_api(method_name="get_column", column_id=column_id)
-            return {
-                "success": True,
-                "data": column
-            }
+            return {"success": True, "data": column}
         except KanboardClientError as e:
             logger.error(f"Error getting column {column_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}

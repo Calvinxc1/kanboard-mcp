@@ -15,9 +15,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def addSwimlane(
-        project_id: int,
-        name: str,
-        description: str | None = None
+        project_id: int, name: str, description: str | None = None
     ) -> dict[str, Any]:
         """Add a swimlane to a project.
 
@@ -35,23 +33,17 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 swimlane_data["description"] = description
 
             swimlane_id = client.call_api(method_name="add_swimlane", **swimlane_data)
-            return {
-                "success": True,
-                "data": {"swimlane_id": swimlane_id}
-            }
+            return {"success": True, "data": {"swimlane_id": swimlane_id}}
         except KanboardClientError as e:
             logger.error(f"Error adding swimlane '{name}' to project {project_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def updateSwimlane(
         project_id: int,
         swimlane_id: int,
         name: str | None = None,
-        description: str | None = None
+        description: str | None = None,
     ) -> dict[str, Any]:
         """Update a swimlane.
 
@@ -72,22 +64,14 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 swimlane_data["description"] = description
 
             success = client.call_api(method_name="update_swimlane", **swimlane_data)
-            return {
-                "success": True,
-                "data": {"updated": success}
-            }
+            return {"success": True, "data": {"updated": success}}
         except KanboardClientError as e:
             logger.error(f"Error updating swimlane {swimlane_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def changeSwimlanePosition(
-        project_id: int,
-        swimlane_id: int,
-        position: int
+        project_id: int, swimlane_id: int, position: int
     ) -> dict[str, Any]:
         """Change a swimlane's position in a project.
 
@@ -103,16 +87,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 swimlane_id=swimlane_id,
                 position=position,
             )
-            return {
-                "success": True,
-                "data": {"moved": success}
-            }
+            return {"success": True, "data": {"moved": success}}
         except KanboardClientError as e:
             logger.error(f"Error moving swimlane {swimlane_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def getActiveSwimlanes(project_id: int) -> dict[str, Any]:
@@ -122,15 +100,16 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             project_id: The ID of the project
         """
         try:
-            swimlanes = client.call_api(method_name="get_active_swimlanes", project_id=project_id)
+            swimlanes = client.call_api(
+                method_name="get_active_swimlanes", project_id=project_id
+            )
             return {
                 "success": True,
                 "data": swimlanes,
-                "count": len(swimlanes) if swimlanes else 0
+                "count": len(swimlanes) if swimlanes else 0,
             }
         except KanboardClientError as e:
-            logger.error(f"Error getting active swimlanes for project {project_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            logger.error(
+                f"Error getting active swimlanes for project {project_id}: {e}"
+            )
+            return {"success": False, "error": str(e)}

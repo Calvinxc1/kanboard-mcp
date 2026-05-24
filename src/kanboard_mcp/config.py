@@ -8,32 +8,39 @@ from pydantic import BaseModel, Field, field_validator
 class KanboardConfig(BaseModel):
     """Configuration for Kanboard API connection."""
 
-    url: str = Field(..., description="Kanboard API URL (e.g., https://your-kanboard.com/jsonrpc.php)")
-    username: str = Field(default="jsonrpc", description="Username for API authentication")
+    url: str = Field(
+        ...,
+        description="Kanboard API URL (e.g., https://your-kanboard.com/jsonrpc.php)",
+    )
+    username: str = Field(
+        default="jsonrpc", description="Username for API authentication"
+    )
     password: str = Field(..., description="API token or password")
-    auth_header: str | None = Field(default=None, description="Custom authentication header")
+    auth_header: str | None = Field(
+        default=None, description="Custom authentication header"
+    )
     verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
     timeout: int = Field(default=30, description="Request timeout in seconds")
 
-    @field_validator('url')
+    @field_validator("url")
     @classmethod
     def validate_url(cls, v: str) -> str:
         """Validate that URL is provided and properly formatted."""
         if not v:
             raise ValueError("Kanboard URL is required")
 
-        if not v.startswith(('http://', 'https://')):
+        if not v.startswith(("http://", "https://")):
             raise ValueError("URL must start with http:// or https://")
 
-        if not v.endswith('/jsonrpc.php'):
-            if v.endswith('/'):
-                v = v + 'jsonrpc.php'
+        if not v.endswith("/jsonrpc.php"):
+            if v.endswith("/"):
+                v = v + "jsonrpc.php"
             else:
-                v = v + '/jsonrpc.php'
+                v = v + "/jsonrpc.php"
 
         return v
 
-    @field_validator('password')
+    @field_validator("password")
     @classmethod
     def validate_password(cls, v: str) -> str:
         """Validate that API token/password is provided."""
@@ -41,7 +48,7 @@ class KanboardConfig(BaseModel):
             raise ValueError("API token or password is required")
         return v
 
-    @field_validator('timeout')
+    @field_validator("timeout")
     @classmethod
     def validate_timeout(cls, v: int) -> int:
         """Validate timeout value."""
@@ -53,13 +60,19 @@ class KanboardConfig(BaseModel):
 class MCPServerConfig(BaseModel):
     """Configuration for MCP server."""
 
-    server_name: str = Field(default="Kanboard MCP Server", description="Name of the MCP server")
-    server_version: str = Field(default="0.1.0", description="Version of the MCP server")
+    server_name: str = Field(
+        default="Kanboard MCP Server", description="Name of the MCP server"
+    )
+    server_version: str = Field(
+        default="0.1.0", description="Version of the MCP server"
+    )
     debug: bool = Field(default=False, description="Enable debug mode")
     max_retries: int = Field(default=3, description="Maximum number of API retries")
-    retry_delay: float = Field(default=1.0, description="Delay between retries in seconds")
+    retry_delay: float = Field(
+        default=1.0, description="Delay between retries in seconds"
+    )
 
-    @field_validator('max_retries')
+    @field_validator("max_retries")
     @classmethod
     def validate_max_retries(cls, v: int) -> int:
         """Validate max retries value."""
@@ -67,7 +80,7 @@ class MCPServerConfig(BaseModel):
             raise ValueError("Max retries must be non-negative")
         return v
 
-    @field_validator('retry_delay')
+    @field_validator("retry_delay")
     @classmethod
     def validate_retry_delay(cls, v: float) -> float:
         """Validate retry delay value."""

@@ -15,7 +15,14 @@ from kanboard_mcp.tools import (
 
 
 @pytest.mark.parametrize(
-    ("module", "tool_name", "tool_kwargs", "api_response", "expected", "expected_kwargs"),
+    (
+        "module",
+        "tool_name",
+        "tool_kwargs",
+        "api_response",
+        "expected",
+        "expected_kwargs",
+    ),
     [
         (
             boards,
