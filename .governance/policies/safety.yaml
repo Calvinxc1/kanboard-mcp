@@ -1,0 +1,8 @@
+id: safety
+when: [edit, command, remediation]
+rules:
+  - Treat changes to auth, configuration redaction, JSON-RPC argument shape, and destructive Kanboard operations as high-risk.
+  - Do not add new tools that delete or mutate Kanboard state without explicit tool naming, argument documentation, and regression tests.
+  - "Preserve the standard response shape for tools: success responses include `success: true`; error responses include `success: false` and `error`."
+  - When changing GitHub Actions, packaging, install commands, or MCP client configuration examples, keep README, CONTRIBUTING, and examples aligned.
+  - After any change, summarize what changed, where, and how it was validated.
