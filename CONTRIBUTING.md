@@ -20,14 +20,15 @@ Thank you for your interest in contributing to the Kanboard MCP Server! This doc
 
 2. **Create a virtual environment**
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   uv venv
    ```
 
-3. **Install dependencies**
+3. **Install dependencies in editable mode**
    ```bash
-   pip install -e ".[dev]"
+   uv pip install -e ".[dev]"
    ```
+
+   Editable mode is important for MCP client testing: source edits in the clone are used by the next server process start.
 
 4. **Set up your environment**
    ```bash
@@ -62,7 +63,9 @@ ruff src/
    ```
 
 2. **Test with Claude Desktop**
-   - Configure Claude Desktop with your local server
+   - Configure Claude Desktop with this clone's entry point:
+     `/home/jcherry/Documents/storage/git/kanboard-mcp/.venv/bin/kanboard-mcp`
+   - Fully quit and relaunch Claude Desktop after connector code changes
    - Test various API calls to ensure functionality
 
 ### Project Structure

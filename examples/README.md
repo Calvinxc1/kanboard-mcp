@@ -22,18 +22,32 @@ This directory contains example configurations for using the Kanboard MCP Server
 
 ### Configuration Options
 
-**Option 1: Using uvx (Recommended)**
+**Option 1: Local editable virtualenv (Recommended for development)**
+- Uses the console script inside this clone's `.venv`
+- Source edits in the working tree take effect after restarting the MCP client
+- Set up once with:
+  ```bash
+  cd /home/jcherry/Documents/storage/git/kanboard-mcp
+  uv venv
+  uv pip install -e ".[dev]"
+  ```
+- Configure Claude with:
+  ```json
+  "command": "/home/jcherry/Documents/storage/git/kanboard-mcp/.venv/bin/kanboard-mcp"
+  ```
+
+**Option 2: Using uvx**
 - No installation required
 - Automatically manages Python environments
 - Always uses the latest published version
 - Simplest configuration
 
-**Option 2: Using uvx with local development version**
+**Option 3: Using uvx with local development version**
 - For developers working on the codebase
 - Runs from local source code
 - Update `/path/to/kanboard-mcp` to your project directory
 
-**Option 3: Using pip-installed package**
+**Option 4: Using pip-installed package**
 - Traditional installation method
 - Requires `pip install kanboard-mcp`
 - Good for environments where uvx isn't available
@@ -67,5 +81,5 @@ All configuration examples support these environment variables:
 If you encounter issues:
 1. Check the main README troubleshooting section
 2. Verify your Kanboard credentials
-3. Test the server manually: `uvx kanboard-mcp` or `kanboard-mcp`
+3. Test the server manually: `.venv/bin/kanboard-mcp`, `uvx kanboard-mcp`, or `kanboard-mcp`
 4. Check Claude Desktop logs for specific error messages

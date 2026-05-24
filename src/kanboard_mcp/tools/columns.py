@@ -1,12 +1,11 @@
 """Column-related tools for Kanboard MCP Server."""
 
-from typing import Any, Dict, List, Optional, Union
 import logging
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
 from ..client import KanboardClient, KanboardClientError
-
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +18,8 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         project_id: int,
         title: str,
         task_limit: int = 0,
-        description: Optional[str] = None
-    ) -> Dict[str, Any]:
+        description: str | None = None
+    ) -> dict[str, Any]:
         """Add a column to a project.
 
         Args:
@@ -53,10 +52,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     @mcp.tool()
     def updateColumn(
         column_id: int,
-        title: Optional[str] = None,
-        task_limit: Optional[int] = None,
-        description: Optional[str] = None
-    ) -> Dict[str, Any]:
+        title: str | None = None,
+        task_limit: int | None = None,
+        description: str | None = None
+    ) -> dict[str, Any]:
         """Update a column.
 
         Args:
@@ -87,7 +86,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def changeColumnPosition(project_id: int, column_id: int, position: int) -> Dict[str, Any]:
+    def changeColumnPosition(project_id: int, column_id: int, position: int) -> dict[str, Any]:
         """Change a column's position in a project.
 
         Args:
@@ -97,7 +96,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             success = client.call_api(
-                "change_column_position",
+                method_name="change_column_position",
                 project_id=project_id,
                 column_id=column_id,
                 position=position,
@@ -114,7 +113,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def getColumns(project_id: int) -> Dict[str, Any]:
+    def getColumns(project_id: int) -> dict[str, Any]:
         """Get all columns for a project.
 
         Args:
@@ -135,7 +134,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def getColumnByName(project_id: int, name: str) -> Dict[str, Any]:
+    def getColumnByName(project_id: int, name: str) -> dict[str, Any]:
         """Get a column by title within a project.
 
         Args:
@@ -164,7 +163,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def getColumn(column_id: int) -> Dict[str, Any]:
+    def getColumn(column_id: int) -> dict[str, Any]:
         """Get a specific column by ID.
 
         Args:

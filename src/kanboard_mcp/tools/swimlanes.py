@@ -1,12 +1,11 @@
 """Swimlane-related tools for Kanboard MCP Server."""
 
-from typing import Any, Dict, Optional
 import logging
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
 from ..client import KanboardClient, KanboardClientError
-
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +17,8 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def addSwimlane(
         project_id: int,
         name: str,
-        description: Optional[str] = None
-    ) -> Dict[str, Any]:
+        description: str | None = None
+    ) -> dict[str, Any]:
         """Add a swimlane to a project.
 
         Args:
@@ -51,9 +50,9 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def updateSwimlane(
         project_id: int,
         swimlane_id: int,
-        name: Optional[str] = None,
-        description: Optional[str] = None
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        description: str | None = None
+    ) -> dict[str, Any]:
         """Update a swimlane.
 
         Args:
@@ -89,7 +88,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         project_id: int,
         swimlane_id: int,
         position: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Change a swimlane's position in a project.
 
         Args:
@@ -99,7 +98,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             success = client.call_api(
-                "change_swimlane_position",
+                method_name="change_swimlane_position",
                 project_id=project_id,
                 swimlane_id=swimlane_id,
                 position=position,
@@ -116,7 +115,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def getActiveSwimlanes(project_id: int) -> Dict[str, Any]:
+    def getActiveSwimlanes(project_id: int) -> dict[str, Any]:
         """Get active swimlanes for a project.
 
         Args:

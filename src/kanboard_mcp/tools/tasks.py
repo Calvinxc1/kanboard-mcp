@@ -1,12 +1,11 @@
 """Task-related tools for Kanboard MCP Server."""
 
-from typing import Any, Dict, List, Optional, Union
 import logging
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
 from ..client import KanboardClient, KanboardClientError
-
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         column_id: int,
         position: int,
         swimlane_id: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Move a task to a board position.
 
         Args:
@@ -33,7 +32,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             success = client.call_api(
-                "move_task_position",
+                method_name="move_task_position",
                 project_id=project_id,
                 task_id=task_id,
                 column_id=column_id,
@@ -58,7 +57,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         column_name: str,
         position: int = 1,
         swimlane_name: str = "Default swimlane"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Move a task to a column by resolving column and swimlane names.
 
         Args:
@@ -103,7 +102,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 }
 
             success = client.call_api(
-                "move_task_position",
+                method_name="move_task_position",
                 project_id=project_id,
                 task_id=task_id,
                 column_id=column_id,
@@ -126,7 +125,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def batchCreateTasks(tasks: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def batchCreateTasks(tasks: list[dict[str, Any]]) -> dict[str, Any]:
         """Create multiple tasks by looping create_task.
 
         Args:
@@ -155,7 +154,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         }
 
     @mcp.tool()
-    def batchMoveTasks(moves: List[Dict[str, int]]) -> Dict[str, Any]:
+    def batchMoveTasks(moves: list[dict[str, int]]) -> dict[str, Any]:
         """Move multiple tasks by looping move_task_position.
 
         Args:
@@ -184,7 +183,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         }
 
     @mcp.tool()
-    def getAllTasks(project_id: int, status_id: Optional[int] = None) -> Dict[str, Any]:
+    def getAllTasks(project_id: int, status_id: int | None = None) -> dict[str, Any]:
         """Get all tasks for a project.
 
         Args:
@@ -210,7 +209,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def getTask(task_id: int) -> Dict[str, Any]:
+    def getTask(task_id: int) -> dict[str, Any]:
         """Get a specific task by ID.
 
         Args:
@@ -230,7 +229,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def getTaskByReference(project_id: int, reference: str) -> Dict[str, Any]:
+    def getTaskByReference(project_id: int, reference: str) -> dict[str, Any]:
         """Get a specific task by reference.
 
         Args:
@@ -251,7 +250,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def getOverdueTasks() -> Dict[str, Any]:
+    def getOverdueTasks() -> dict[str, Any]:
         """Get all overdue tasks."""
         try:
             tasks = client.call_api(method_name="get_overdue_tasks")
@@ -268,7 +267,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def getOverdueTasksByProject(project_id: int) -> Dict[str, Any]:
+    def getOverdueTasksByProject(project_id: int) -> dict[str, Any]:
         """Get overdue tasks for a specific project.
 
         Args:
@@ -292,18 +291,18 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def createTask(
         project_id: int,
         title: str,
-        description: Optional[str] = None,
-        category_id: Optional[int] = None,
-        owner_id: Optional[int] = None,
-        creator_id: Optional[int] = None,
-        date_due: Optional[str] = None,
-        color_id: Optional[str] = None,
-        column_id: Optional[int] = None,
-        swimlane_id: Optional[int] = None,
-        priority: Optional[int] = None,
-        reference: Optional[str] = None,
-        tags: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+        description: str | None = None,
+        category_id: int | None = None,
+        owner_id: int | None = None,
+        creator_id: int | None = None,
+        date_due: str | None = None,
+        color_id: str | None = None,
+        column_id: int | None = None,
+        swimlane_id: int | None = None,
+        priority: int | None = None,
+        reference: str | None = None,
+        tags: list[str] | None = None
+    ) -> dict[str, Any]:
         """Create a new task.
 
         Args:
@@ -366,15 +365,15 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     @mcp.tool()
     def updateTask(
         task_id: int,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        category_id: Optional[int] = None,
-        owner_id: Optional[int] = None,
-        date_due: Optional[str] = None,
-        color_id: Optional[str] = None,
-        priority: Optional[int] = None,
-        reference: Optional[str] = None
-    ) -> Dict[str, Any]:
+        title: str | None = None,
+        description: str | None = None,
+        category_id: int | None = None,
+        owner_id: int | None = None,
+        date_due: str | None = None,
+        color_id: str | None = None,
+        priority: int | None = None,
+        reference: str | None = None
+    ) -> dict[str, Any]:
         """Update an existing task.
 
         Args:
@@ -422,7 +421,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def openTask(task_id: int) -> Dict[str, Any]:
+    def openTask(task_id: int) -> dict[str, Any]:
         """Open a task (set status to open).
 
         Args:
@@ -442,7 +441,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def closeTask(task_id: int) -> Dict[str, Any]:
+    def closeTask(task_id: int) -> dict[str, Any]:
         """Close a task (set status to closed).
 
         Args:
@@ -462,7 +461,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             }
 
     @mcp.tool()
-    def removeTask(task_id: int) -> Dict[str, Any]:
+    def removeTask(task_id: int) -> dict[str, Any]:
         """Remove (delete) a task.
 
         Args:
@@ -485,11 +484,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def searchTasks(
         project_id: int,
         query: str,
-        category_id: Optional[int] = None,
-        owner_id: Optional[int] = None,
-        due_date: Optional[str] = None,
-        status_id: Optional[int] = None
-    ) -> Dict[str, Any]:
+        category_id: int | None = None,
+        owner_id: int | None = None,
+        due_date: str | None = None,
+        status_id: int | None = None
+    ) -> dict[str, Any]:
         """Search tasks in a project.
 
         Args:

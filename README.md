@@ -110,7 +110,30 @@ python -m kanboard_mcp.server
 
 Add the server to your MCP client configuration. For Claude Desktop, add to your `claude_desktop_config.json`:
 
-**Option 1: Using uvx (Recommended)**
+**Option 1: Local editable virtualenv (Recommended for development)**
+```bash
+cd /home/jcherry/Documents/storage/git/kanboard-mcp
+uv venv
+uv pip install -e ".[dev]"
+```
+
+```json
+{
+  "mcpServers": {
+    "kanboard": {
+      "command": "/home/jcherry/Documents/storage/git/kanboard-mcp/.venv/bin/kanboard-mcp",
+      "env": {
+        "KANBOARD_URL": "https://your-kanboard.com/jsonrpc.php",
+        "KANBOARD_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
+
+With this setup, source edits in this checkout are picked up by the next MCP server process start. Fully quit and relaunch Claude Desktop after changing connector code.
+
+**Option 2: Using uvx**
 ```json
 {
   "mcpServers": {
@@ -128,7 +151,7 @@ Add the server to your MCP client configuration. For Claude Desktop, add to your
 
 **Note**: Replace `/Users/username/.local/bin/uvx` with your actual uvx path. Find it by running `which uvx` in your terminal.
 
-**Option 2: Using installed package**
+**Option 3: Using installed package**
 ```json
 {
   "mcpServers": {
@@ -271,7 +294,19 @@ ruff src/
 
 If you get this error, Claude Desktop can't find the Python executable. Here are the solutions in order of preference:
 
-1. **Use uvx (RECOMMENDED)**:
+1. **Use this clone's editable virtualenv for local development**:
+   ```json
+   {
+     "mcpServers": {
+       "kanboard": {
+         "command": "/home/jcherry/Documents/storage/git/kanboard-mcp/.venv/bin/kanboard-mcp",
+         "env": { ... }
+       }
+     }
+   }
+   ```
+
+2. **Use uvx for the published package**:
    ```json
    {
      "mcpServers": {
@@ -284,7 +319,7 @@ If you get this error, Claude Desktop can't find the Python executable. Here are
    }
    ```
 
-2. **Use pip-installed package**:
+3. **Use pip-installed package**:
    ```json
    {
      "mcpServers": {
@@ -296,7 +331,7 @@ If you get this error, Claude Desktop can't find the Python executable. Here are
    }
    ```
 
-3. **Use full Python path**:
+4. **Use full Python path**:
    ```json
    {
      "mcpServers": {
