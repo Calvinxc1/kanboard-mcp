@@ -13,11 +13,76 @@ logger = logging.getLogger(__name__)
 
 def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     """Register category-related tools."""
-    
+
+    @mcp.tool()
+    def createCategory(
+        project_id: int,
+        name: str,
+        color_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Create a category in a project.
+
+        Args:
+            project_id: The ID of the project
+            name: The category name
+            color_id: Optional Kanboard color ID
+        """
+        try:
+            category_data = {
+                "project_id": project_id,
+                "name": name,
+            }
+            if color_id is not None:
+                category_data["color_id"] = color_id
+
+            category_id = client.call_api("create_category", **category_data)
+            return {
+                "success": True,
+                "data": {"category_id": category_id}
+            }
+        except KanboardClientError as e:
+            logger.error(f"Error creating category '{name}' in project {project_id}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    @mcp.tool()
+    def updateCategory(
+        category_id: int,
+        name: Optional[str] = None,
+        color_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Update a category.
+
+        Args:
+            category_id: The ID of the category to update
+            name: Optional new category name
+            color_id: Optional Kanboard color ID
+        """
+        try:
+            category_data = {"id": category_id}
+            if name is not None:
+                category_data["name"] = name
+            if color_id is not None:
+                category_data["color_id"] = color_id
+
+            success = client.call_api("update_category", **category_data)
+            return {
+                "success": True,
+                "data": {"updated": success}
+            }
+        except KanboardClientError as e:
+            logger.error(f"Error updating category {category_id}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
     @mcp.tool()
     def getCategory(category_id: int) -> Dict[str, Any]:
         """Get a specific category by ID.
-        
+
         Args:
             category_id: The ID of the category to retrieve
         """
@@ -33,11 +98,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 "success": False,
                 "error": str(e)
             }
-    
+
     @mcp.tool()
     def getAllCategories(project_id: int) -> Dict[str, Any]:
         """Get all categories for a project.
-        
+
         Args:
             project_id: The ID of the project to get categories for
         """

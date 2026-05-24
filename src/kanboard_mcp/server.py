@@ -20,6 +20,7 @@ from .tools import (
     users,
     links,
     subtasks,
+    swimlanes,
     tags,
     files,
 )
@@ -38,24 +39,24 @@ logger = logging.getLogger(__name__)
 
 class KanboardMCPServer:
     """Kanboard MCP Server implementation."""
-    
+
     def __init__(self, config: Config):
         """Initialize the MCP server with configuration."""
         self.config = config
         self.client = create_client(config)
         self.mcp = FastMCP(config.server.server_name)
-        
+
         # Set up logging level
         if config.server.debug:
             logging.getLogger().setLevel(logging.DEBUG)
             logger.debug("Debug mode enabled")
-        
+
         # Register tools
         self._register_tools()
-        
+
         # Add connection test tool
         self._register_connection_tools()
-    
+
     def _register_tools(self) -> None:
         """Register all Kanboard API tools."""
         tool_modules = [
@@ -68,18 +69,19 @@ class KanboardMCPServer:
             users,
             links,
             subtasks,
+            swimlanes,
             tags,
             files,
         ]
-        
+
         for module in tool_modules:
             if hasattr(module, 'register_tools'):
                 module.register_tools(self.mcp, self.client)
                 logger.info(f"Registered tools from {module.__name__}")
-    
+
     def _register_connection_tools(self) -> None:
         """Register connection and server management tools."""
-        
+
         @self.mcp.tool()
         def test_connection() -> Dict[str, Any]:
             """Test connection to Kanboard server and return status."""
@@ -95,7 +97,7 @@ class KanboardMCPServer:
                     "success": False,
                     "error": str(e)
                 }
-        
+
         @self.mcp.tool()
         def get_server_info() -> Dict[str, Any]:
             """Get Kanboard server information and capabilities."""
@@ -111,7 +113,7 @@ class KanboardMCPServer:
                     "success": False,
                     "error": str(e)
                 }
-        
+
         @self.mcp.tool()
         def get_config_info() -> Dict[str, Any]:
             """Get current configuration information (without sensitive data)."""
@@ -129,13 +131,13 @@ class KanboardMCPServer:
                     "timeout": self.config.kanboard.timeout,
                 }
             }
-    
+
     def run(self) -> None:
         """Run the MCP server."""
         try:
             logger.info(f"Starting {self.config.server.server_name} v{self.config.server.server_version}")
             logger.info(f"Connecting to Kanboard at {self.config.kanboard.url}")
-            
+
             # Test connection on startup
             connection_result = self.client.test_connection()
             if connection_result.get("connected"):
@@ -143,10 +145,10 @@ class KanboardMCPServer:
             else:
                 logger.error(f"Failed to connect to Kanboard: {connection_result.get('error')}")
                 raise ConnectionError(f"Cannot connect to Kanboard: {connection_result.get('error')}")
-            
+
             # Run the server
             self.mcp.run()
-            
+
         except KeyboardInterrupt:
             logger.info("Server stopped by user")
         except Exception as e:
@@ -158,7 +160,7 @@ def create_server(config: Optional[Config] = None) -> KanboardMCPServer:
     """Create a new Kanboard MCP server instance."""
     if config is None:
         config = load_config()
-    
+
     return KanboardMCPServer(config)
 
 
@@ -167,11 +169,11 @@ def main() -> None:
     try:
         # Load configuration
         config = load_config()
-        
+
         # Create and run server
         server = create_server(config)
         server.run()
-        
+
     except ValueError as e:
         logger.error(f"Configuration error: {e}")
         print(f"Configuration error: {e}", file=sys.stderr)
