@@ -6,6 +6,7 @@ from typing import Any
 from mcp.server.fastmcp import FastMCP
 
 from ..client import KanboardClient, KanboardClientError
+from ..redaction import redact_user_record
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             user = client.call_api(method_name="get_user", user_id=user_id)
-            return {"success": True, "data": user}
+            return {"success": True, "data": redact_user_record(user)}
         except KanboardClientError as e:
             logger.error(f"Error getting user {user_id}: {e}")
             return {"success": False, "error": str(e)}
@@ -36,7 +37,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """
         try:
             user = client.call_api(method_name="get_user_by_name", username=username)
-            return {"success": True, "data": user}
+            return {"success": True, "data": redact_user_record(user)}
         except KanboardClientError as e:
             logger.error(f"Error getting user '{username}': {e}")
             return {"success": False, "error": str(e)}
@@ -46,6 +47,8 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """Get all users."""
         try:
             users = client.call_api(method_name="get_all_users")
+            if isinstance(users, list):
+                users = [redact_user_record(user) for user in users]
             return {"success": True, "data": users, "count": len(users) if users else 0}
         except KanboardClientError as e:
             logger.error(f"Error getting all users: {e}")
@@ -56,7 +59,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """Get current user information."""
         try:
             user = client.call_api(method_name="get_me")
-            return {"success": True, "data": user}
+            return {"success": True, "data": redact_user_record(user)}
         except KanboardClientError as e:
             logger.error(f"Error getting current user info: {e}")
             return {"success": False, "error": str(e)}

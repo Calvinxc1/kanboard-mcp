@@ -355,6 +355,85 @@ def test_simple_tool_wrapper_success(
     assert client.calls == [{"args": (), "kwargs": expected_kwargs}]
 
 
+@pytest.mark.parametrize(
+    ("tool_name", "tool_kwargs", "method_kwargs"),
+    [
+        ("getUser", {"user_id": 2}, {"method_name": "get_user", "user_id": 2}),
+        (
+            "getUserByName",
+            {"username": "jcherry"},
+            {"method_name": "get_user_by_name", "username": "jcherry"},
+        ),
+        ("getMe", {}, {"method_name": "get_me"}),
+    ],
+)
+def test_user_tools_redact_single_user_records(
+    fake_mcp, tool_name, tool_kwargs, method_kwargs
+):
+    user_record = {
+        "id": 2,
+        "username": "jcherry",
+        "email": "jcherry@example.test",
+        "twofactor_secret": "otp-secret",
+        "twofactor_activated": True,
+        "api_access_token": "personal-api-token",
+        "password": "$2y$10$password-hash",
+    }
+    client = ScriptedClient(responses=[user_record])
+    users.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools[tool_name](**tool_kwargs)
+
+    assert result == {
+        "success": True,
+        "data": {
+            "id": 2,
+            "username": "jcherry",
+            "email": "jcherry@example.test",
+            "twofactor_secret": "[redacted]",
+            "twofactor_activated": True,
+        },
+    }
+    assert client.calls == [{"args": (), "kwargs": method_kwargs}]
+
+
+def test_get_all_users_redacts_each_user_record(fake_mcp):
+    user_records = [
+        {
+            "id": 2,
+            "username": "jcherry",
+            "twofactor_secret": "otp-secret",
+            "api_access_token": "personal-api-token",
+            "password": "$2y$10$password-hash",
+        },
+        {
+            "id": 3,
+            "username": "test",
+            "twofactor_secret": None,
+            "api_access_token": "other-api-token",
+            "password": "$2y$10$other-password-hash",
+        },
+    ]
+    client = ScriptedClient(responses=[user_records])
+    users.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["getAllUsers"]()
+
+    assert result == {
+        "success": True,
+        "data": [
+            {
+                "id": 2,
+                "username": "jcherry",
+                "twofactor_secret": "[redacted]",
+            },
+            {"id": 3, "username": "test", "twofactor_secret": None},
+        ],
+        "count": 2,
+    }
+    assert client.calls == [{"args": (), "kwargs": {"method_name": "get_all_users"}}]
+
+
 def test_simple_tool_wrapper_error_shape(fake_mcp):
     client = ScriptedClient(responses=[KanboardClientError("nope")])
     projects.register_tools(fake_mcp, client)

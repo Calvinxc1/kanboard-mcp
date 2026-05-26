@@ -9,6 +9,7 @@ from mcp.server.fastmcp import FastMCP
 
 from .client import create_client
 from .config import Config, load_config
+from .redaction import redact_user_record
 from .tools import (
     boards,
     categories,
@@ -84,6 +85,8 @@ class KanboardMCPServer:
             """Test connection to Kanboard server and return status."""
             try:
                 result = self.client.test_connection()
+                if isinstance(result, dict) and "user" in result:
+                    result = {**result, "user": redact_user_record(result["user"])}
                 return {"success": True, "data": result}
             except Exception as e:
                 logger.error(f"Connection test failed: {e}")
@@ -94,6 +97,11 @@ class KanboardMCPServer:
             """Get Kanboard server information and capabilities."""
             try:
                 result = self.client.get_server_info()
+                if isinstance(result, dict) and "user_info" in result:
+                    result = {
+                        **result,
+                        "user_info": redact_user_record(result["user_info"]),
+                    }
                 return {"success": True, "data": result}
             except Exception as e:
                 logger.error(f"Failed to get server info: {e}")

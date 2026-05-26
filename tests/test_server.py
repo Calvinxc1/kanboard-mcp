@@ -76,6 +76,59 @@ def test_server_registers_tools_and_connection_helpers(monkeypatch):
     assert "password" not in config_info["data"]
 
 
+def test_connection_helpers_redact_user_records(monkeypatch):
+    fake_client = FakeServerClient()
+    fake_client.connection_result = {
+        "connected": True,
+        "user": {
+            "id": 2,
+            "username": "jcherry",
+            "twofactor_secret": "otp-secret",
+            "twofactor_activated": True,
+            "api_access_token": "personal-api-token",
+            "password": "$2y$10$password-hash",
+        },
+    }
+    fake_client.server_info = {
+        "server_version": "1.2.3",
+        "user_info": {
+            "id": 2,
+            "username": "jcherry",
+            "twofactor_secret": None,
+            "api_access_token": "personal-api-token",
+            "password": "$2y$10$password-hash",
+        },
+    }
+    monkeypatch.setattr("kanboard_mcp.server.FastMCP", FakeFastMCP)
+    monkeypatch.setattr("kanboard_mcp.server.create_client", lambda _: fake_client)
+
+    server = KanboardMCPServer(make_config())
+
+    assert server.mcp.tools["test_connection"]() == {
+        "success": True,
+        "data": {
+            "connected": True,
+            "user": {
+                "id": 2,
+                "username": "jcherry",
+                "twofactor_secret": "[redacted]",
+                "twofactor_activated": True,
+            },
+        },
+    }
+    assert server.mcp.tools["get_server_info"]() == {
+        "success": True,
+        "data": {
+            "server_version": "1.2.3",
+            "user_info": {
+                "id": 2,
+                "username": "jcherry",
+                "twofactor_secret": None,
+            },
+        },
+    }
+
+
 def test_connection_helpers_return_error_payloads(monkeypatch):
     fake_client = FakeServerClient()
     fake_client.test_connection = lambda: (_ for _ in ()).throw(RuntimeError("down"))
