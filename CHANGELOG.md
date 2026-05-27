@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local editable MCP usage documentation for development workflows.
 
 ### Fixed
+- `searchTasks` now matches Kanboard's API shape by accepting only
+  `project_id` and `query`, with filters documented as query syntax.
 - `setTaskTags` now resolves the task's `project_id` before calling Kanboard's
   `set_task_tags` API.
 - Several tool calls now pass `client.call_api` method names by keyword,

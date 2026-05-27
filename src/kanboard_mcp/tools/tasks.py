@@ -410,35 +410,26 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def searchTasks(
         project_id: int,
         query: str,
-        category_id: int | None = None,
-        owner_id: int | None = None,
-        due_date: str | None = None,
-        status_id: int | None = None,
     ) -> dict[str, Any]:
-        """Search tasks in a project.
+        """Search tasks in a project with Kanboard search syntax.
+
+        This tool accepts only project_id and query. Put all filters inside
+        query; do not pass status_id, category_id, owner_id, due_date, tag, or
+        description as separate parameters. Free text searches task ID/title.
+        Use explicit filters for other fields, for example:
+        status:open dependency bounds
+        status:closed tag:"dependency"
+        description:"runtime dependencies" category:1234 assignee:username
+        due:2026-06-01
 
         Args:
             project_id: The ID of the project to search in
-            query: The search query
-            category_id: Optional category ID to filter
-            owner_id: Optional owner user ID to filter
-            due_date: Optional due date to filter (YYYY-MM-DD format)
-            status_id: Optional status ID to filter
+            query: Kanboard search query, including any filters
         """
         try:
-            search_params = {"project_id": project_id, "query": query}
-
-            # Add optional filters
-            if category_id is not None:
-                search_params["category_id"] = category_id
-            if owner_id is not None:
-                search_params["owner_id"] = owner_id
-            if due_date is not None:
-                search_params["due_date"] = due_date
-            if status_id is not None:
-                search_params["status_id"] = status_id
-
-            tasks = client.call_api(method_name="search_tasks", **search_params)
+            tasks = client.call_api(
+                method_name="search_tasks", project_id=project_id, query=query
+            )
             return {"success": True, "data": tasks, "count": len(tasks) if tasks else 0}
         except KanboardClientError as e:
             logger.error(f"Error searching tasks: {e}")

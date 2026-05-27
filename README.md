@@ -202,7 +202,7 @@ The server provides built-in tools for testing:
 - `openTask(task_id)`: Open task
 - `closeTask(task_id)`: Close task
 - `removeTask(task_id)`: Delete task
-- `searchTasks(project_id, query, ...)`: Search tasks
+- `searchTasks(project_id, query)`: Search tasks with Kanboard search syntax. Free text searches task ID/title; use filters inside `query`, such as `status:open`, `status:closed`, `description:"runtime dependencies"`, `tag:"dependency"`, or `category:1234`.
 
 ### Comments
 

@@ -1,3 +1,5 @@
+import inspect
+
 from conftest import ScriptedClient
 
 from kanboard_mcp.client import KanboardClientError
@@ -189,17 +191,20 @@ def test_get_all_tasks_includes_status_only_when_provided(fake_mcp):
     ]
 
 
-def test_search_tasks_includes_optional_filters(fake_mcp):
+def test_search_tasks_matches_kanboard_api_shape(fake_mcp):
     client = ScriptedClient(responses=[[{"id": 42}]])
     register_tools(fake_mcp, client)
 
+    signature = inspect.signature(fake_mcp.tools["searchTasks"])
+    assert list(signature.parameters) == ["project_id", "query"]
+    assert "do not pass status_id" in inspect.getdoc(fake_mcp.tools["searchTasks"])
+    assert "Free text searches task ID/title" in inspect.getdoc(
+        fake_mcp.tools["searchTasks"]
+    )
+
     result = fake_mcp.tools["searchTasks"](
         project_id=1,
-        query="tag:homelab",
-        category_id=2,
-        owner_id=3,
-        due_date="2026-06-01",
-        status_id=1,
+        query="tag:homelab category:2 assignee:admin due:2026-06-01 status:open",
     )
 
     assert result == {"success": True, "data": [{"id": 42}], "count": 1}
@@ -209,11 +214,7 @@ def test_search_tasks_includes_optional_filters(fake_mcp):
             "kwargs": {
                 "method_name": "search_tasks",
                 "project_id": 1,
-                "query": "tag:homelab",
-                "category_id": 2,
-                "owner_id": 3,
-                "due_date": "2026-06-01",
-                "status_id": 1,
+                "query": "tag:homelab category:2 assignee:admin due:2026-06-01 status:open",
             },
         }
     ]
