@@ -39,8 +39,8 @@ pip install kanboard-mcp
 ### Install from Source
 
 ```bash
-# Clone the repository
-git clone https://github.com/hoducha/kanboard-mcp.git
+# Clone this fork
+git clone https://github.com/Calvinxc1/kanboard-mcp.git
 cd kanboard-mcp
 
 # Install with uv
@@ -54,11 +54,16 @@ pip install -e .
 
 ```bash
 # With uv
-uv sync --all-extras
+uv venv
+uv pip install -e ".[dev]"
 
 # Or with pip
 pip install -e ".[dev]"
 ```
+
+This fork preserves the original project history and may either continue as a
+personal fork or be proposed upstream later. For upstream comparison, see the
+original project at <https://github.com/hoducha/kanboard-mcp>.
 
 ## Configuration
 
@@ -96,7 +101,7 @@ DEBUG=false
 ### Running the Server
 
 ```bash
-# Using uvx (recommended - no installation needed)
+# Using uvx for the published package
 uvx kanboard-mcp
 
 # Or using the installed command
@@ -110,7 +115,31 @@ python -m kanboard_mcp.server
 
 Add the server to your MCP client configuration. For Claude Desktop, add to your `claude_desktop_config.json`:
 
-**Option 1: Using uvx (Recommended)**
+**Option 1: Local editable virtualenv (Recommended for development)**
+```bash
+cd /path/to/kanboard-mcp
+uv venv
+uv pip install -e ".[dev]"
+```
+
+```json
+{
+  "mcpServers": {
+    "kanboard": {
+      "command": "/path/to/kanboard-mcp/.venv/bin/kanboard-mcp",
+      "env": {
+        "KANBOARD_URL": "https://your-kanboard.com/jsonrpc.php",
+        "KANBOARD_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
+
+With this setup, source edits in this checkout are picked up by the next MCP server process start. Fully quit and relaunch Claude Desktop after changing connector code.
+Replace `/path/to/kanboard-mcp` with your local clone path.
+
+**Option 2: Using uvx**
 ```json
 {
   "mcpServers": {
@@ -128,7 +157,7 @@ Add the server to your MCP client configuration. For Claude Desktop, add to your
 
 **Note**: Replace `/Users/username/.local/bin/uvx` with your actual uvx path. Find it by running `which uvx` in your terminal.
 
-**Option 2: Using installed package**
+**Option 3: Using installed package**
 ```json
 {
   "mcpServers": {
@@ -173,7 +202,7 @@ The server provides built-in tools for testing:
 - `openTask(task_id)`: Open task
 - `closeTask(task_id)`: Close task
 - `removeTask(task_id)`: Delete task
-- `searchTasks(project_id, query, ...)`: Search tasks
+- `searchTasks(project_id, query)`: Search tasks with Kanboard search syntax. Free text searches task ID/title; use filters inside `query`, such as `status:open`, `status:closed`, `description:"runtime dependencies"`, `tag:"dependency"`, or `category:1234`.
 
 ### Comments
 
@@ -237,24 +266,21 @@ kanboard-mcp/
 ### Running Tests
 
 ```bash
-pytest
+uv run --extra dev pytest -W error
 ```
 
 ### Code Quality
 
 ```bash
-# Format code
-black src/
-
-# Sort imports
-isort src/
-
-# Type checking
-mypy src/
-
 # Linting
-ruff src/
+uv run --extra dev ruff check .
+
+# Formatting
+uv run --extra dev ruff format src tests
 ```
+
+`mypy` is configured but is not currently part of CI. Treat type-check cleanup as
+a separate hardening task before adding it to required checks.
 
 ## Troubleshooting
 
@@ -271,7 +297,19 @@ ruff src/
 
 If you get this error, Claude Desktop can't find the Python executable. Here are the solutions in order of preference:
 
-1. **Use uvx (RECOMMENDED)**:
+1. **Use this clone's editable virtualenv for local development**:
+   ```json
+   {
+     "mcpServers": {
+       "kanboard": {
+         "command": "/path/to/kanboard-mcp/.venv/bin/kanboard-mcp",
+         "env": { ... }
+       }
+     }
+   }
+   ```
+
+2. **Use uvx for the published package**:
    ```json
    {
      "mcpServers": {
@@ -284,7 +322,7 @@ If you get this error, Claude Desktop can't find the Python executable. Here are
    }
    ```
 
-2. **Use pip-installed package**:
+3. **Use pip-installed package**:
    ```json
    {
      "mcpServers": {
@@ -296,7 +334,7 @@ If you get this error, Claude Desktop can't find the Python executable. Here are
    }
    ```
 
-3. **Use full Python path**:
+4. **Use full Python path**:
    ```json
    {
      "mcpServers": {
@@ -314,7 +352,7 @@ If you get this error, Claude Desktop can't find the Python executable. Here are
 
 **Benefits of uvx**:
 - No need to manage Python environments
-- Automatically installs and runs the latest version
+- Automatically installs and runs the published package
 - Works across different Python installations
 - Simplest configuration
 
@@ -344,4 +382,5 @@ MIT License - see LICENSE file for details.
 For issues and questions:
 - Check the troubleshooting section
 - Review Kanboard API documentation: https://docs.kanboard.org/v1/api/
-- Open an issue on GitHub
+- Open an issue on GitHub for this fork or the original upstream, depending on
+  where you intend the change to live.

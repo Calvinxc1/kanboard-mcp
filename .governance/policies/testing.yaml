@@ -1,0 +1,12 @@
+id: testing
+when: [test_work, mcp_tool_work, client_or_config_work, code_review]
+rules:
+  - Prefer offline regression tests for connector behavior unless live Kanboard integration testing is explicitly requested.
+  - Use fakes or monkeypatching to test MCP registration, tool wrappers, client error handling, and config behavior without real credentials.
+  - "Regression tests should assert the exact contract that failed or could fail: method name, parameter names, optional-field omission, error shape, or registered tool name."
+  - Keep the AST guard that rejects positional `client.call_api(...)` method names unless the client contract changes intentionally.
+  - Run `uv run --extra dev pytest -W error` before claiming the suite is clean.
+  - Run `uv run --extra dev ruff check .` or an equivalently scoped Ruff command before committing code changes.
+  - Maintain coverage at or above the configured `fail_under` value.
+  - Do not raise the coverage gate solely to chase a number; raise it after meaningful behavior is covered.
+  - When coverage is discussed, distinguish covered connector logic from untested live Kanboard behavior.
