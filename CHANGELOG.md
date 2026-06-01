@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `updateProject` now accepts Kanboard project priority range fields:
+  `priority_default`, `priority_start`, and `priority_end`.
 - Offline regression test suite covering tool registration, JSON-RPC argument
   shape, client error handling, server startup, configuration, task movement,
   comments, tags, and representative wrappers.
@@ -17,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local editable MCP usage documentation for development workflows.
 
 ### Fixed
+- `updateProject` omits unset optional fields, preserves Kanboard's
+  `project_id` parameter shape, and verifies priority range updates persist.
 - `searchTasks` now matches Kanboard's API shape by accepting only
   `project_id` and `query`, with filters documented as query syntax.
 - `setTaskTags` now resolves the task's `project_id` before calling Kanboard's

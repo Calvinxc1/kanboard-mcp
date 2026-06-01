@@ -52,6 +52,9 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         identifier: str | None = None,
         start_date: str | None = None,
         end_date: str | None = None,
+        priority_default: int | None = None,
+        priority_start: int | None = None,
+        priority_end: int | None = None,
     ) -> dict[str, Any]:
         """Update a project.
 
@@ -63,23 +66,66 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             identifier: Optional project identifier
             start_date: Optional project start date
             end_date: Optional project end date
+            priority_default: Optional default priority for new tasks
+            priority_start: Optional lowest priority value for the project
+            priority_end: Optional highest priority value for the project
         """
         try:
             project_data = {"project_id": project_id}
-            if name is not None:
-                project_data["name"] = name
-            if description is not None:
-                project_data["description"] = description
-            if owner_id is not None:
-                project_data["owner_id"] = owner_id
-            if identifier is not None:
-                project_data["identifier"] = identifier
-            if start_date is not None:
-                project_data["start_date"] = start_date
-            if end_date is not None:
-                project_data["end_date"] = end_date
+            optional_fields = {
+                "name": name,
+                "description": description,
+                "owner_id": owner_id,
+                "identifier": identifier,
+                "start_date": start_date,
+                "end_date": end_date,
+                "priority_default": int(priority_default)
+                if priority_default is not None
+                else None,
+                "priority_start": int(priority_start)
+                if priority_start is not None
+                else None,
+                "priority_end": int(priority_end) if priority_end is not None else None,
+            }
+            project_data.update(
+                {
+                    field: value
+                    for field, value in optional_fields.items()
+                    if value is not None
+                }
+            )
 
             success = client.call_api(method_name="update_project", **project_data)
+            priority_updates = {
+                field: project_data[field]
+                for field in ("priority_default", "priority_start", "priority_end")
+                if field in project_data
+            }
+            if success and priority_updates:
+                updated_project = client.call_api(
+                    method_name="get_project_by_id", project_id=project_id
+                )
+                mismatches = {}
+                for field, expected in priority_updates.items():
+                    actual = updated_project.get(field) if updated_project else None
+                    try:
+                        actual_matches = actual is not None and int(actual) == expected
+                    except (TypeError, ValueError):
+                        actual_matches = False
+                    if not actual_matches:
+                        mismatches[field] = {
+                            "expected": expected,
+                            "actual": actual,
+                        }
+                if mismatches:
+                    return {
+                        "success": False,
+                        "error": (
+                            "Kanboard accepted updateProject but did not persist "
+                            "priority fields"
+                        ),
+                        "data": {"updated": success, "mismatches": mismatches},
+                    }
             return {"success": True, "data": {"updated": success}}
         except KanboardClientError as e:
             logger.error(f"Error updating project {project_id}: {e}")

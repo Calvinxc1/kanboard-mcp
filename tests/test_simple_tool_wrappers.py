@@ -137,19 +137,6 @@ from kanboard_mcp.tools import (
         ),
         (
             projects,
-            "updateProject",
-            {"project_id": 1, "name": "New", "end_date": "2026-06-01"},
-            True,
-            {"success": True, "data": {"updated": True}},
-            {
-                "method_name": "update_project",
-                "project_id": 1,
-                "name": "New",
-                "end_date": "2026-06-01",
-            },
-        ),
-        (
-            projects,
             "getAllProjects",
             {},
             [{"id": 1}],
@@ -353,6 +340,184 @@ def test_simple_tool_wrapper_success(
 
     assert result == expected
     assert client.calls == [{"args": (), "kwargs": expected_kwargs}]
+
+
+def test_update_project_sends_minimal_project_id_and_name_payload(fake_mcp):
+    client = ScriptedClient(responses=[True])
+    projects.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["updateProject"](project_id=1, name="Homelab")
+
+    assert result == {"success": True, "data": {"updated": True}}
+    assert client.calls == [
+        {
+            "args": (),
+            "kwargs": {
+                "method_name": "update_project",
+                "project_id": 1,
+                "name": "Homelab",
+            },
+        }
+    ]
+
+
+def test_update_project_drops_none_values_and_uses_project_id_param(fake_mcp):
+    client = ScriptedClient(responses=[True])
+    projects.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["updateProject"](
+        project_id=1,
+        name="Homelab",
+        description=None,
+        owner_id=None,
+        identifier=None,
+        start_date=None,
+        end_date=None,
+        priority_default=None,
+        priority_start=None,
+        priority_end=None,
+    )
+
+    assert result == {"success": True, "data": {"updated": True}}
+    update_kwargs = client.calls[0]["kwargs"]
+    assert update_kwargs == {
+        "method_name": "update_project",
+        "project_id": 1,
+        "name": "Homelab",
+    }
+    assert "id" not in update_kwargs
+    assert all(value is not None for value in update_kwargs.values())
+
+
+def test_update_project_sets_priority_range_and_get_all_projects_reads_it_back(
+    fake_mcp,
+):
+    project_after_update = {
+        "id": 1,
+        "name": "Homelab",
+        "description": "Local infrastructure",
+        "identifier": "HOMELAB",
+        "priority_start": 1,
+        "priority_end": 5,
+        "priority_default": 3,
+    }
+    client = ScriptedClient(responses=[True, project_after_update, [project_after_update]])
+    projects.register_tools(fake_mcp, client)
+
+    update_result = fake_mcp.tools["updateProject"](
+        project_id=1,
+        priority_start=1,
+        priority_end=5,
+        priority_default=3,
+    )
+    readback_result = fake_mcp.tools["getAllProjects"]()
+
+    assert update_result == {"success": True, "data": {"updated": True}}
+    assert readback_result == {"success": True, "data": [project_after_update], "count": 1}
+    assert readback_result["data"][0]["name"] == "Homelab"
+    assert readback_result["data"][0]["description"] == "Local infrastructure"
+    assert readback_result["data"][0]["identifier"] == "HOMELAB"
+    assert readback_result["data"][0]["priority_start"] == 1
+    assert readback_result["data"][0]["priority_end"] == 5
+    assert readback_result["data"][0]["priority_default"] == 3
+    update_kwargs = client.calls[0]["kwargs"]
+    assert "id" not in update_kwargs
+    assert "name" not in update_kwargs
+    assert "description" not in update_kwargs
+    assert "identifier" not in update_kwargs
+    assert all(value is not None for value in update_kwargs.values())
+    assert [call["kwargs"] for call in client.calls] == [
+        {
+            "method_name": "update_project",
+            "project_id": 1,
+            "priority_start": 1,
+            "priority_end": 5,
+            "priority_default": 3,
+        },
+        {"method_name": "get_project_by_id", "project_id": 1},
+        {"method_name": "get_all_projects"},
+    ]
+
+
+def test_update_project_reports_priority_fields_that_do_not_persist(fake_mcp):
+    client = ScriptedClient(
+        responses=[
+            True,
+            {
+                "id": 1,
+                "name": "Homelab",
+                "description": "Local infrastructure",
+                "identifier": "HOMELAB",
+                "priority_start": 0,
+                "priority_end": 3,
+                "priority_default": 0,
+            },
+        ]
+    )
+    projects.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["updateProject"](
+        project_id=1,
+        priority_start=1,
+        priority_end=5,
+        priority_default=3,
+    )
+
+    assert result == {
+        "success": False,
+        "error": "Kanboard accepted updateProject but did not persist priority fields",
+        "data": {
+            "updated": True,
+            "mismatches": {
+                "priority_default": {"expected": 3, "actual": 0},
+                "priority_start": {"expected": 1, "actual": 0},
+                "priority_end": {"expected": 5, "actual": 3},
+            },
+        },
+    }
+    assert [call["kwargs"] for call in client.calls] == [
+        {
+            "method_name": "update_project",
+            "project_id": 1,
+            "priority_start": 1,
+            "priority_end": 5,
+            "priority_default": 3,
+        },
+        {"method_name": "get_project_by_id", "project_id": 1},
+    ]
+
+
+def test_update_project_reports_non_integer_priority_readback_as_mismatch(fake_mcp):
+    client = ScriptedClient(
+        responses=[
+            True,
+            {
+                "id": 1,
+                "priority_start": "not-an-int",
+                "priority_end": "5",
+                "priority_default": "3",
+            },
+        ]
+    )
+    projects.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["updateProject"](
+        project_id=1,
+        priority_start=1,
+        priority_end=5,
+        priority_default=3,
+    )
+
+    assert result == {
+        "success": False,
+        "error": "Kanboard accepted updateProject but did not persist priority fields",
+        "data": {
+            "updated": True,
+            "mismatches": {
+                "priority_start": {"expected": 1, "actual": "not-an-int"},
+            },
+        },
+    }
 
 
 @pytest.mark.parametrize(

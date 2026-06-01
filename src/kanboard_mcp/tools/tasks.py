@@ -272,7 +272,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             color_id: The color ID
             column_id: The column ID
             swimlane_id: The swimlane ID
-            priority: The priority (0-3)
+            priority: The priority within the project's configured range
             reference: The reference
             tags: List of tags
         """
@@ -334,7 +334,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             owner_id: The new owner user ID
             date_due: The new due date (YYYY-MM-DD format)
             color_id: The new color ID
-            priority: The new priority (0-3)
+            priority: The new priority within the project's configured range
             reference: The new reference
         """
         try:
