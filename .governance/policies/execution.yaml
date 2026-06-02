@@ -1,0 +1,11 @@
+id: execution
+when: [edit, command]
+rules:
+  - Use `uv` as the repository's development environment and command runner.
+  - "Prefer the editable local virtualenv for local MCP validation: `.venv/bin/kanboard-mcp`."
+  - If intent is ambiguous, ask a short clarifying question before acting.
+  - For requested implementation work, carry through code, focused tests, and verification when feasible.
+  - Avoid unrelated formatting, dependency, or documentation churn.
+  - When authenticated GitHub access is required, use the repository's configured git remotes and report the target branch.
+  - Do not run commands that print environment secrets.
+  - Do not modify generated caches such as `.coverage`, `.pytest_cache/`, `.ruff_cache/`, or `.venv/`.

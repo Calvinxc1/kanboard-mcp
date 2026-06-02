@@ -1,0 +1,12 @@
+id: mcp_api_contracts
+when: [mcp_tool_work, client_or_config_work, code_review]
+rules:
+  - Tool wrappers must call `client.call_api` with `method_name=` by keyword, never as a positional first argument.
+  - Tool wrappers must pass Kanboard JSON-RPC parameters by explicit keyword arguments.
+  - Before adding or changing a Kanboard API call, verify the required Kanboard method name and parameter shape from existing code, tests, or upstream documentation.
+  - If a Kanboard method requires context not present in the public tool signature, either add the missing tool parameter deliberately or resolve it internally with a tested read call.
+  - Keep MCP tool signatures simple for daily use, but do not hide required Kanboard API context unless it can be resolved reliably.
+  - Do not use `updateTask` as a substitute for fields that Kanboard does not support there.
+  - "Preserve create/update optional-field behavior: omit unset optional values rather than sending `None` unless Kanboard explicitly expects null."
+  - Keep `get_config_info` and similar diagnostic tools redacted.
+  - Changes to `src/kanboard_mcp/tools/` require focused tests that assert method name, keyword arguments, and returned payload shape.

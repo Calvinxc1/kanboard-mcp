@@ -1,0 +1,20 @@
+id: risk_validation
+when: [risk, validation]
+tier_labels:
+  tier_1: [formatting, wording, boilerplate, repetitive_wrappers, test_scaffolds]
+  tier_2: [mcp_tool_logic, config_parsing, docs_for_local_usage, nontrivial_refactors, test_policy]
+  tier_3: [auth_security, token_redaction, client_retry_logic, destructive_operations, packaging_entrypoints, externally_visible_tool_contracts]
+rules:
+  - Classify substantive work before implementation or recommendation; if unsure, classify higher.
+  - "tier_1: draft allowed; surface obvious assumptions or limitations when relevant."
+  - "tier_2: require assumptions, one likely failure mode, one validation method or test, and a fact-vs-expectation distinction."
+  - "tier_3: require constraints, material assumptions, likely failure modes or edge cases, one alternative or tradeoff, validation steps, and explicit remaining uncertainty."
+  - tier_3 is not accepted, settled, or authoritative without explicit human acceptance.
+  - Do not recommend substantive work as validated unless the relevant gates are met or the remaining gap is explicit.
+gates:
+  code:
+    [intended_behavior, assumptions, likely_failure_modes, tests_or_validation_steps, chosen_approach_vs_alternative]
+  operator_docs:
+    [current_workflow_verified, secret_placeholders_used, local_vs_published_install_distinguished]
+  api_contract:
+    [method_name_verified, required_params_verified, response_shape_preserved, regression_test_added]

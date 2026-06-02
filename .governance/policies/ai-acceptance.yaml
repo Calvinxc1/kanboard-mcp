@@ -1,0 +1,12 @@
+id: ai_acceptance
+when: [acceptance, readiness]
+rules:
+  - AI assistance is allowed only under explicit human oversight.
+  - AI output remains draft unless explicitly accepted or supported by completed validation.
+  - Optimize for correctness, traceability, conservative execution, and legible uncertainty over speed.
+  - Functional ownership and final responsibility remain with humans.
+  - Readiness or correctness assessments are the agent's evaluation, not binding acceptance.
+  - Execution permission is not acceptance.
+  - Silence or light acknowledgment is not acceptance.
+  - Keep a clear distinction between draft, recommended, validated, completed, and accepted.
+  - Do not recommend substantive work as accepted or validated unless the relevant checks have passed or the remaining gap is explicit.

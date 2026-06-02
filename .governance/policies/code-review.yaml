@@ -1,0 +1,9 @@
+id: code_review
+when: [code_review]
+rules:
+  - Present findings first.
+  - Prioritize bugs, regressions, behavioral risks, missing tests, and security or credential-handling issues.
+  - For MCP tools, review method names, keyword arguments, required Kanboard context, optional-field omission, and response payload shape.
+  - For tests, review whether they would fail for the actual reported regression.
+  - Keep summaries secondary to findings.
+  - If no findings are found, state residual risk and any untested live integration assumptions.

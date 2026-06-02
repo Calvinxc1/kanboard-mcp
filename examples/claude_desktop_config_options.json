@@ -2,8 +2,20 @@
   "mcpServers": {
     "comment": "Choose ONE of the following configurations based on your setup",
     
-    "kanboard_option1_uvx": {
-      "description": "Option 1: Use uvx with published package (RECOMMENDED)",
+    "kanboard_option1_local_editable": {
+      "description": "Option 1: Use this clone's editable virtualenv (recommended for local development)",
+      "command": "/path/to/kanboard-mcp/.venv/bin/kanboard-mcp",
+      "env": {
+        "KANBOARD_URL": "https://your-kanboard.com/jsonrpc.php",
+        "KANBOARD_API_TOKEN": "your_api_token_here",
+        "KANBOARD_USERNAME": "your_username",
+        "KANBOARD_VERIFY_SSL": "true",
+        "DEBUG": "false"
+      }
+    },
+    
+    "kanboard_option2_uvx": {
+      "description": "Option 2: Use uvx with published package",
       "command": "/Users/username/.local/bin/uvx",
       "args": ["kanboard-mcp"],
       "env": {
@@ -15,8 +27,8 @@
       }
     },
     
-    "kanboard_option2_uvx_dev": {
-      "description": "Option 2: Use uvx with local development version",
+    "kanboard_option3_uvx_dev": {
+      "description": "Option 3: Use uvx with local development version",
       "command": "/Users/username/.local/bin/uvx",
       "args": ["--from", "/path/to/kanboard-mcp", "kanboard-mcp"],
       "env": {
@@ -28,8 +40,8 @@
       }
     },
     
-    "kanboard_option3_pip": {
-      "description": "Option 3: Use pip-installed package",
+    "kanboard_option4_pip": {
+      "description": "Option 4: Use pip-installed package",
       "command": "kanboard-mcp",
       "env": {
         "KANBOARD_URL": "https://your-kanboard.com/jsonrpc.php",

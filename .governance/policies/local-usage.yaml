@@ -1,0 +1,8 @@
+id: local_usage
+when: [docs_or_operator_work]
+rules:
+  - "Prefer local editable install instructions for development workflows: `uv venv` followed by `uv pip install -e \".[dev]\"`."
+  - MCP client examples for active development should point at `.venv/bin/kanboard-mcp`, not `uvx`, so source edits take effect on restart.
+  - State clearly that MCP clients must fully restart their server process after connector source changes.
+  - Keep `uvx` examples available only as installed-package or non-development usage.
+  - Do not imply that a GitHub push is required for local editable MCP testing.

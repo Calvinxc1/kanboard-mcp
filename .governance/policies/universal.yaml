@@ -1,0 +1,13 @@
+id: universal
+always_load: true
+rules:
+  - Treat this repository as a working MCP connector, not a research sandbox.
+  - Preserve daily-driver stability for local MCP usage.
+  - Do not edit, create, rename, or delete files unless explicitly asked or clearly required by an explicitly requested implementation task.
+  - Do not infer acceptance from execution permission.
+  - Before material changes, state what will be changed and why.
+  - If a requested action conflicts with policy, explain the conflict and ask for confirmation.
+  - Do not expose secrets, API tokens, local private URLs, or user-specific credentials in output, commits, tests, or examples.
+  - Prefer focused, regression-oriented changes over broad refactors.
+  - Keep behavior compatible with the documented local editable virtualenv workflow unless explicitly changing that workflow.
+  - Do not treat offline unit tests as proof of live Kanboard behavior; label that distinction clearly.
