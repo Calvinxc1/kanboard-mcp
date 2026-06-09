@@ -28,8 +28,42 @@ from kanboard_mcp.tools import (
             boards,
             "getBoard",
             {"project_id": 1},
-            {"columns": []},
-            {"success": True, "data": {"columns": []}},
+            {
+                "columns": [
+                    {
+                        "id": 6,
+                        "title": "Doing",
+                        "project_id": 1,
+                        "tasks": [
+                            {
+                                "id": 42,
+                                "title": "Wire rack",
+                                "project_id": 1,
+                                "column_id": 6,
+                                "swimlane_id": 1,
+                                "description": "large body omitted",
+                                "recurrence_status": 0,
+                                "project_name": "Homelab",
+                                "nb_comments": 3,
+                            }
+                        ],
+                    }
+                ]
+            },
+            {
+                "success": True,
+                "data": {
+                    "columns": [
+                        {
+                            "id": 6,
+                            "title": "Doing",
+                            "tasks": [
+                                {"id": 42, "title": "Wire rack"}
+                            ],
+                        }
+                    ]
+                },
+            },
             {"method_name": "get_board", "project_id": 1},
         ),
         (
@@ -139,8 +173,54 @@ from kanboard_mcp.tools import (
             projects,
             "getAllProjects",
             {},
-            [{"id": 1}],
-            {"success": True, "data": [{"id": 1}], "count": 1},
+            [
+                {
+                    "id": 1,
+                    "name": "Homelab",
+                    "identifier": "",
+                    "is_active": 1,
+                    "description": "Local infrastructure",
+                    "priority_start": 1,
+                    "priority_end": 5,
+                    "priority_default": 3,
+                    "token": "",
+                    "email": None,
+                    "url": {"board": "https://kanboard.example.test/board/1"},
+                    "task_limit": 0,
+                },
+                {
+                    "id": 2,
+                    "name": "Career",
+                    "identifier": "CAREER",
+                    "is_active": 1,
+                    "description": "",
+                    "priority_start": 0,
+                    "priority_end": 3,
+                    "url": {"board": "https://kanboard.example.test/board/2"},
+                }
+            ],
+            {
+                "success": True,
+                "data": [
+                    {
+                        "id": 1,
+                        "name": "Homelab",
+                        "is_active": 1,
+                        "description": "Local infrastructure",
+                        "priority_start": 1,
+                        "priority_end": 5,
+                    },
+                    {
+                        "id": 2,
+                        "name": "Career",
+                        "identifier": "CAREER",
+                        "is_active": 1,
+                        "priority_start": 0,
+                        "priority_end": 3,
+                    },
+                ],
+                "count": 2,
+            },
             {"method_name": "get_all_projects"},
         ),
         (
@@ -413,13 +493,26 @@ def test_update_project_sets_priority_range_and_get_all_projects_reads_it_back(
     readback_result = fake_mcp.tools["getAllProjects"]()
 
     assert update_result == {"success": True, "data": {"updated": True}}
-    assert readback_result == {"success": True, "data": [project_after_update], "count": 1}
+    assert readback_result == {
+        "success": True,
+        "data": [
+            {
+                "id": 1,
+                "name": "Homelab",
+                "description": "Local infrastructure",
+                "identifier": "HOMELAB",
+                "priority_start": 1,
+                "priority_end": 5,
+            }
+        ],
+        "count": 1,
+    }
     assert readback_result["data"][0]["name"] == "Homelab"
     assert readback_result["data"][0]["description"] == "Local infrastructure"
     assert readback_result["data"][0]["identifier"] == "HOMELAB"
     assert readback_result["data"][0]["priority_start"] == 1
     assert readback_result["data"][0]["priority_end"] == 5
-    assert readback_result["data"][0]["priority_default"] == 3
+    assert "priority_default" not in readback_result["data"][0]
     update_kwargs = client.calls[0]["kwargs"]
     assert "id" not in update_kwargs
     assert "name" not in update_kwargs
@@ -606,6 +699,135 @@ def test_simple_tool_wrapper_error_shape(fake_mcp):
     result = fake_mcp.tools["getAllProjects"]()
 
     assert result == {"success": False, "error": "nope"}
+
+
+def test_get_board_summarizes_top_level_column_list(fake_mcp):
+    raw_board = [
+        {
+            "id": 6,
+            "title": "Doing",
+            "project_id": 1,
+            "tasks": [
+                {
+                    "id": 42,
+                    "title": "Wire rack",
+                    "project_id": 1,
+                    "column_id": 6,
+                    "swimlane_id": 1,
+                    "is_active": 0,
+                    "category_id": 0,
+                    "priority": 0,
+                    "description": "large body omitted",
+                    "project_name": "Homelab",
+                    "column_name": "Doing",
+                    "swimlane_name": "Default swimlane",
+                    "recurrence_status": 0,
+                    "recurrence_trigger": 0,
+                    "assignee_avatar_path": None,
+                    "is_draggable": True,
+                    "is_milestone": False,
+                    "nb_comments": 3,
+                    "nb_subtasks": 2,
+                }
+            ],
+        }
+    ]
+    client = ScriptedClient(responses=[raw_board])
+    boards.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["getBoard"](project_id=1)
+
+    assert result == {
+        "success": True,
+        "data": [
+            {
+                "id": 6,
+                "title": "Doing",
+                "tasks": [
+                    {
+                        "id": 42,
+                        "title": "Wire rack",
+                        "is_active": 0,
+                        "category_id": 0,
+                        "priority": 0,
+                    }
+                ],
+            }
+        ],
+    }
+
+
+def test_get_board_summarizes_live_swimlane_column_shape(fake_mcp):
+    raw_board = [
+        {
+            "id": 1,
+            "name": "Default swimlane",
+            "columns": [
+                {
+                    "id": 6,
+                    "title": "Doing",
+                    "project_id": 1,
+                    "description": "",
+                    "column_nb_open_tasks": 1,
+                    "nb_open_tasks": 1,
+                    "nb_tasks": 1,
+                    "nb_visible_tasks_across_swimlane": 1,
+                    "nb_unfiltered_tasks_across_swimlane": 1,
+                    "cumulative_score_across_swimlane": 0,
+                    "score": 0,
+                    "tasks": [
+                        {
+                            "id": 42,
+                            "title": "Wire rack",
+                            "project_id": 1,
+                            "column_id": 6,
+                            "swimlane_id": 1,
+                            "is_active": 0,
+                            "category_id": 0,
+                            "priority": 0,
+                            "description": "large body omitted",
+                            "project_name": "Homelab",
+                            "column_name": "Doing",
+                            "swimlane_name": "Default swimlane",
+                            "recurrence_factor": 0,
+                            "assignee_avatar_path": None,
+                            "nb_comments": 3,
+                        }
+                    ],
+                }
+            ],
+        }
+    ]
+    client = ScriptedClient(responses=[raw_board])
+    boards.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["getBoard"](project_id=1)
+
+    assert result == {
+        "success": True,
+        "data": [
+            {
+                "id": 1,
+                "name": "Default swimlane",
+                "columns": [
+                    {
+                        "id": 6,
+                        "title": "Doing",
+                        "nb_open_tasks": 1,
+                        "tasks": [
+                            {
+                                "id": 42,
+                                "title": "Wire rack",
+                                "is_active": 0,
+                                "category_id": 0,
+                                "priority": 0,
+                            }
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
 
 
 @pytest.mark.parametrize(

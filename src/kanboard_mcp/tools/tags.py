@@ -25,11 +25,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getTagsByProject(project_id: int) -> dict[str, Any]:
-        """Get all tags for a specific project.
-
-        Args:
-            project_id: The ID of the project to get tags for
-        """
+        """Get all tags for a specific project."""
         try:
             tags = client.call_api(
                 method_name="get_tags_by_project", project_id=project_id
@@ -41,12 +37,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def setTaskTags(task_id: int, tags: list[str]) -> dict[str, Any]:
-        """Set tags for a task.
-
-        Args:
-            task_id: The ID of the task to set tags for
-            tags: List of tag names to assign to the task
-        """
+        """Set tags for a task."""
         try:
             task = client.call_api(method_name="get_task", task_id=task_id)
             project_id = task.get("project_id") if task else None
@@ -68,11 +59,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getTaskTags(task_id: int) -> dict[str, Any]:
-        """Get tags for a specific task.
-
-        Args:
-            task_id: The ID of the task to get tags for
-        """
+        """Get tags for a specific task."""
         try:
             tags = client.call_api(method_name="get_task_tags", task_id=task_id)
             return {"success": True, "data": tags, "count": len(tags) if tags else 0}

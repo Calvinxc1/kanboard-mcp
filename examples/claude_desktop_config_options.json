@@ -10,6 +10,7 @@
         "KANBOARD_API_TOKEN": "your_api_token_here",
         "KANBOARD_USERNAME": "your_username",
         "KANBOARD_VERIFY_SSL": "true",
+        "KANBOARD_TOOL_PROFILE": "core",
         "DEBUG": "false"
       }
     },
@@ -23,6 +24,7 @@
         "KANBOARD_API_TOKEN": "your_api_token_here",
         "KANBOARD_USERNAME": "your_username",
         "KANBOARD_VERIFY_SSL": "true",
+        "KANBOARD_TOOL_PROFILE": "full",
         "DEBUG": "false"
       }
     },
@@ -36,6 +38,7 @@
         "KANBOARD_API_TOKEN": "your_api_token_here",
         "KANBOARD_USERNAME": "your_username",
         "KANBOARD_VERIFY_SSL": "true",
+        "KANBOARD_TOOL_PROFILE": "core",
         "DEBUG": "false"
       }
     },
@@ -48,6 +51,7 @@
         "KANBOARD_API_TOKEN": "your_api_token_here",
         "KANBOARD_USERNAME": "your_username",
         "KANBOARD_VERIFY_SSL": "true",
+        "KANBOARD_TOOL_PROFILE": "full",
         "DEBUG": "false"
       }
     }

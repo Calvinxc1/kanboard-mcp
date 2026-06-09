@@ -21,6 +21,8 @@ changes are changes that affect:
 
 - Kanboard JSON-RPC method names and parameter shape.
 - MCP tool signatures and response payload shape.
+- MCP token footprint from always-loaded tool schemas, descriptions, tool surface,
+  and bulk/list response verbosity.
 - Authentication, API token handling, or configuration disclosure.
 - Local editable MCP usage and operator documentation.
 - Test coverage, warning cleanliness, and regression guarantees.

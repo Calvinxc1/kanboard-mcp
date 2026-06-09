@@ -22,16 +22,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         time_spent: int | None = None,
         status: int | None = None,
     ) -> dict[str, Any]:
-        """Create a new subtask.
-
-        Args:
-            task_id: The ID of the parent task
-            title: The title of the subtask
-            user_id: The ID of the user assigned to the subtask
-            time_estimated: Estimated time in hours
-            time_spent: Time spent in hours
-            status: Status of the subtask (0=todo, 1=in progress, 2=done)
-        """
+        """Create a new subtask."""
         try:
             subtask_data = {"task_id": task_id, "title": title}
 
@@ -52,11 +43,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getSubtask(subtask_id: int) -> dict[str, Any]:
-        """Get a specific subtask by ID.
-
-        Args:
-            subtask_id: The ID of the subtask to retrieve
-        """
+        """Get a specific subtask by ID."""
         try:
             subtask = client.call_api(method_name="get_subtask", subtask_id=subtask_id)
             return {"success": True, "data": subtask}
@@ -66,11 +53,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getAllSubtasks(task_id: int) -> dict[str, Any]:
-        """Get all subtasks for a task.
-
-        Args:
-            task_id: The ID of the task to get subtasks for
-        """
+        """Get all subtasks for a task."""
         try:
             subtasks = client.call_api(method_name="get_all_subtasks", task_id=task_id)
             return {
@@ -91,16 +74,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         time_spent: int | None = None,
         status: int | None = None,
     ) -> dict[str, Any]:
-        """Update an existing subtask.
-
-        Args:
-            subtask_id: The ID of the subtask to update
-            title: The new title of the subtask
-            user_id: The new user ID assigned to the subtask
-            time_estimated: New estimated time in hours
-            time_spent: New time spent in hours
-            status: New status of the subtask (0=todo, 1=in progress, 2=done)
-        """
+        """Update an existing subtask."""
         try:
             subtask_data = {"id": subtask_id}
 
@@ -123,11 +97,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def removeSubtask(subtask_id: int) -> dict[str, Any]:
-        """Remove (delete) a subtask.
-
-        Args:
-            subtask_id: The ID of the subtask to remove
-        """
+        """Remove (delete) a subtask."""
         try:
             success = client.call_api(
                 method_name="remove_subtask", subtask_id=subtask_id

@@ -15,13 +15,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def createTaskFile(task_id: int, filename: str, blob: str) -> dict[str, Any]:
-        """Create a new file attachment for a task.
-
-        Args:
-            task_id: The ID of the task to attach file to
-            filename: The name of the file
-            blob: The file content encoded in base64
-        """
+        """Create a new file attachment for a task."""
         try:
             file_id = client.call_api(
                 method_name="create_task_file",
@@ -36,11 +30,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getAllTaskFiles(task_id: int) -> dict[str, Any]:
-        """Get all files attached to a task.
-
-        Args:
-            task_id: The ID of the task to get files for
-        """
+        """Get all files attached to a task."""
         try:
             files = client.call_api(method_name="get_all_task_files", task_id=task_id)
             return {"success": True, "data": files, "count": len(files) if files else 0}
@@ -50,11 +40,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getTaskFile(file_id: int) -> dict[str, Any]:
-        """Get a specific task file by ID.
-
-        Args:
-            file_id: The ID of the file to retrieve
-        """
+        """Get a specific task file by ID."""
         try:
             file_info = client.call_api(method_name="get_task_file", file_id=file_id)
             return {"success": True, "data": file_info}
@@ -64,11 +50,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def downloadTaskFile(file_id: int) -> dict[str, Any]:
-        """Download a task file.
-
-        Args:
-            file_id: The ID of the file to download
-        """
+        """Download a task file."""
         try:
             file_content = client.call_api(
                 method_name="download_task_file", file_id=file_id
@@ -80,11 +62,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def removeTaskFile(file_id: int) -> dict[str, Any]:
-        """Remove (delete) a task file.
-
-        Args:
-            file_id: The ID of the file to remove
-        """
+        """Remove (delete) a task file."""
         try:
             success = client.call_api(method_name="remove_task_file", file_id=file_id)
             return {"success": True, "data": {"removed": success}}
@@ -94,11 +72,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def removeAllTaskFiles(task_id: int) -> dict[str, Any]:
-        """Remove all files from a task.
-
-        Args:
-            task_id: The ID of the task to remove all files from
-        """
+        """Remove all files from a task."""
         try:
             success = client.call_api(
                 method_name="remove_all_task_files", task_id=task_id

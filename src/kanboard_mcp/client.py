@@ -227,7 +227,12 @@ class KanboardClient:
     def call_api(self, method_name: str, *args, **kwargs) -> Any:
         """Call a Kanboard API method with error handling and retry logic."""
         try:
-            return self._execute_with_retry(method_name, *args, **kwargs)
+            result = self._execute_with_retry(method_name, *args, **kwargs)
+            if method_name == "get_board":
+                from .tools.boards import summarize_board
+
+                return summarize_board(result)
+            return result
         except (KanboardClientError, KanboardAPIError, KanboardAuthenticationError):
             raise
         except Exception as e:
