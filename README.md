@@ -201,7 +201,7 @@ helpers.
 You can also limit registration to specific tool modules:
 
 ```env
-KANBOARD_ENABLED_TOOL_MODULES=tasks,tags,comments
+KANBOARD_ENABLED_TOOL_MODULES=tasks,comments,boards
 ```
 
 When this variable is set, only the listed modules are registered. Connection
