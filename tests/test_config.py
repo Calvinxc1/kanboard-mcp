@@ -31,6 +31,8 @@ def test_config_from_env_reads_expected_values(monkeypatch):
     monkeypatch.setenv("KANBOARD_USERNAME", "api")
     monkeypatch.setenv("KANBOARD_VERIFY_SSL", "false")
     monkeypatch.setenv("KANBOARD_MAX_RETRIES", "5")
+    monkeypatch.setenv("KANBOARD_TOOL_PROFILE", "core")
+    monkeypatch.setenv("KANBOARD_ENABLED_TOOL_MODULES", "tasks, comments")
 
     config = Config.from_env()
 
@@ -39,6 +41,18 @@ def test_config_from_env_reads_expected_values(monkeypatch):
     assert config.kanboard.password == "token"
     assert config.kanboard.verify_ssl is False
     assert config.server.max_retries == 5
+    assert config.server.tool_profile == "core"
+    assert config.server.enabled_tool_modules == ("tasks", "comments")
+
+
+def test_config_defaults_to_core_tool_profile(monkeypatch):
+    monkeypatch.setenv("KANBOARD_URL", "https://kanboard.example.test")
+    monkeypatch.setenv("KANBOARD_API_TOKEN", "token")
+    monkeypatch.delenv("KANBOARD_TOOL_PROFILE", raising=False)
+
+    config = Config.from_env()
+
+    assert config.server.tool_profile == "core"
 
 
 def test_load_config_wraps_missing_required_env(monkeypatch):
@@ -65,9 +79,16 @@ def test_config_validation_rejects_bad_timeout_and_retry_delay():
     with pytest.raises(ValueError, match="Retry delay must be non-negative"):
         MCPServerConfig(retry_delay=-1)
 
+    with pytest.raises(ValueError, match="Tool profile must be"):
+        MCPServerConfig(tool_profile="minimal")
+
+    with pytest.raises(ValueError, match="Unknown tool module"):
+        MCPServerConfig(enabled_tool_modules=("tasks", "widgets"))
+
 
 def test_get_example_env_contains_required_keys():
     example = get_example_env()
 
     assert "KANBOARD_URL=" in example
     assert "KANBOARD_API_TOKEN=" in example
+    assert "KANBOARD_TOOL_PROFILE=" in example

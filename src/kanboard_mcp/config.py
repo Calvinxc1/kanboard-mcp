@@ -71,6 +71,13 @@ class MCPServerConfig(BaseModel):
     retry_delay: float = Field(
         default=1.0, description="Delay between retries in seconds"
     )
+    tool_profile: str = Field(
+        default="core", description="Tool registration profile: core or full"
+    )
+    enabled_tool_modules: tuple[str, ...] | None = Field(
+        default=None,
+        description="Optional comma-separated tool module allowlist",
+    )
 
     @field_validator("max_retries")
     @classmethod
@@ -86,6 +93,45 @@ class MCPServerConfig(BaseModel):
         """Validate retry delay value."""
         if v < 0:
             raise ValueError("Retry delay must be non-negative")
+        return v
+
+    @field_validator("tool_profile")
+    @classmethod
+    def validate_tool_profile(cls, v: str) -> str:
+        """Validate MCP tool registration profile."""
+        normalized = v.casefold()
+        if normalized not in {"full", "core"}:
+            raise ValueError("Tool profile must be 'full' or 'core'")
+        return normalized
+
+    @field_validator("enabled_tool_modules")
+    @classmethod
+    def validate_enabled_tool_modules(
+        cls, v: tuple[str, ...] | None
+    ) -> tuple[str, ...] | None:
+        """Validate optional tool module allowlist."""
+        if v is None:
+            return None
+
+        allowed_modules = {
+            "boards",
+            "categories",
+            "columns",
+            "comments",
+            "files",
+            "links",
+            "projects",
+            "subtasks",
+            "swimlanes",
+            "tags",
+            "tasks",
+            "users",
+        }
+        invalid_modules = sorted(set(v) - allowed_modules)
+        if invalid_modules:
+            raise ValueError(
+                "Unknown tool module(s): " + ", ".join(invalid_modules)
+            )
         return v
 
 
@@ -113,6 +159,10 @@ class Config(BaseModel):
             debug=os.getenv("DEBUG", "false").lower() == "true",
             max_retries=int(os.getenv("KANBOARD_MAX_RETRIES", "3")),
             retry_delay=float(os.getenv("KANBOARD_RETRY_DELAY", "1.0")),
+            tool_profile=os.getenv("KANBOARD_TOOL_PROFILE", "core"),
+            enabled_tool_modules=_parse_enabled_tool_modules(
+                os.getenv("KANBOARD_ENABLED_TOOL_MODULES")
+            ),
         )
 
         return cls(kanboard=kanboard_config, server=server_config)
@@ -136,6 +186,16 @@ def load_config() -> Config:
         raise ValueError(f"Configuration error: {str(e)}") from e
 
 
+def _parse_enabled_tool_modules(value: str | None) -> tuple[str, ...] | None:
+    """Parse comma-separated MCP tool module allowlist from the environment."""
+    if value is None or not value.strip():
+        return None
+
+    return tuple(
+        module.strip().casefold() for module in value.split(",") if module.strip()
+    )
+
+
 def get_example_env() -> str:
     """Get example environment variables configuration."""
     return """
@@ -154,6 +214,8 @@ KANBOARD_VERIFY_SSL=true
 KANBOARD_TIMEOUT=30
 KANBOARD_MAX_RETRIES=3
 KANBOARD_RETRY_DELAY=1.0
+KANBOARD_TOOL_PROFILE=core
+KANBOARD_ENABLED_TOOL_MODULES=
 
 # MCP Server settings:
 MCP_SERVER_NAME="Kanboard MCP Server"

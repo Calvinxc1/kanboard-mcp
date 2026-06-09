@@ -35,6 +35,32 @@ class FakeKanboardApi:
                 raise failure
         return {"id": kwargs["task_id"]}
 
+    def get_board(self, **kwargs):
+        self.calls.append(("get_board", {}, kwargs))
+        return [
+            {
+                "id": 1,
+                "columns": [
+                    {
+                        "id": 6,
+                        "project_id": kwargs["project_id"],
+                        "tasks": [
+                            {
+                                "id": 42,
+                                "title": "Wire rack",
+                                "project_id": kwargs["project_id"],
+                                "column_id": 6,
+                                "swimlane_id": 1,
+                                "description": "large body omitted",
+                                "recurrence_factor": 0,
+                                "assignee_avatar_path": None,
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+
 
 def make_config(max_retries=0, retry_delay=0, debug=False):
     return Config(
@@ -259,6 +285,17 @@ def test_call_api_wraps_unexpected_execute_exception(monkeypatch):
 
     with pytest.raises(KanboardClientError, match="Unexpected error: boom"):
         client.call_api(method_name="get_task")
+
+
+def test_call_api_summarizes_get_board_responses():
+    client = make_client()
+
+    result = client.call_api(method_name="get_board", project_id=1)
+
+    task = result[0]["columns"][0]["tasks"][0]
+    column = result[0]["columns"][0]
+    assert "project_id" not in column
+    assert task == {"id": 42, "title": "Wire rack"}
 
 
 def test_connection_helpers_return_success_and_failure(monkeypatch):

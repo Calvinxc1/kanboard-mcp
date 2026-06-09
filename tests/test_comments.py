@@ -44,7 +44,26 @@ def test_update_comment_uses_kanboard_comment_id_parameter(fake_mcp):
 
 
 def test_comment_read_and_remove_wrappers(fake_mcp):
-    client = ScriptedClient(responses=[{"id": 7}, [{"id": 7}], True])
+    client = ScriptedClient(
+        responses=[
+            {"id": 7},
+            [
+                {
+                    "id": 7,
+                    "date_creation": 1780366986,
+                    "username": "jcherry",
+                    "comment": "Done",
+                    "avatar_path": "avatar.png",
+                    "email": "",
+                    "name": "Jason M. Cherry",
+                    "user_id": 2,
+                    "visibility": "public",
+                    "date_modification": 1780366986,
+                }
+            ],
+            True,
+        ]
+    )
     register_tools(fake_mcp, client)
 
     assert fake_mcp.tools["getComment"](comment_id=7) == {
@@ -53,7 +72,14 @@ def test_comment_read_and_remove_wrappers(fake_mcp):
     }
     assert fake_mcp.tools["getAllComments"](task_id=42) == {
         "success": True,
-        "data": [{"id": 7}],
+        "data": [
+            {
+                "id": 7,
+                "date_creation": 1780366986,
+                "username": "jcherry",
+                "comment": "Done",
+            }
+        ],
         "count": 1,
     }
     assert fake_mcp.tools["removeComment"](comment_id=7) == {

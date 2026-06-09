@@ -17,13 +17,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def addSwimlane(
         project_id: int, name: str, description: str | None = None
     ) -> dict[str, Any]:
-        """Add a swimlane to a project.
-
-        Args:
-            project_id: The ID of the project
-            name: The swimlane name
-            description: Optional swimlane description
-        """
+        """Add a swimlane to a project."""
         try:
             swimlane_data = {
                 "project_id": project_id,
@@ -45,14 +39,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         name: str | None = None,
         description: str | None = None,
     ) -> dict[str, Any]:
-        """Update a swimlane.
-
-        Args:
-            project_id: The ID of the project
-            swimlane_id: The ID of the swimlane to update
-            name: Optional new swimlane name
-            description: Optional new swimlane description
-        """
+        """Update a swimlane."""
         try:
             swimlane_data = {
                 "project_id": project_id,
@@ -73,13 +60,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def changeSwimlanePosition(
         project_id: int, swimlane_id: int, position: int
     ) -> dict[str, Any]:
-        """Change a swimlane's position in a project.
-
-        Args:
-            project_id: The ID of the project
-            swimlane_id: The ID of the swimlane to move
-            position: The new swimlane position
-        """
+        """Change a swimlane's position in a project."""
         try:
             success = client.call_api(
                 method_name="change_swimlane_position",
@@ -94,11 +75,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getActiveSwimlanes(project_id: int) -> dict[str, Any]:
-        """Get active swimlanes for a project.
-
-        Args:
-            project_id: The ID of the project
-        """
+        """Get active swimlanes for a project."""
         try:
             swimlanes = client.call_api(
                 method_name="get_active_swimlanes", project_id=project_id

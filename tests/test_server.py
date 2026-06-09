@@ -26,7 +26,11 @@ class FakeFastMCP:
 
 class FakeServerClient:
     def __init__(self):
-        self.connection_result = {"connected": True}
+        self.connection_result = {
+            "connected": True,
+            "username": "jsonrpc",
+            "server_url": "https://kanboard.example.test/jsonrpc.php",
+        }
         self.server_info = {"server_version": "1.2.3"}
 
     def call_api(self, **kwargs):
@@ -39,14 +43,23 @@ class FakeServerClient:
         return self.server_info
 
 
-def make_config(debug=False):
+def make_config(
+    debug=False,
+    tool_profile="core",
+    enabled_tool_modules=None,
+):
     return Config(
         kanboard=KanboardConfig(
             url="https://kanboard.example.test/jsonrpc.php",
             username="jsonrpc",
             password="token",
         ),
-        server=MCPServerConfig(server_name="Test Kanboard", debug=debug),
+        server=MCPServerConfig(
+            server_name="Test Kanboard",
+            debug=debug,
+            tool_profile=tool_profile,
+            enabled_tool_modules=enabled_tool_modules,
+        ),
     )
 
 
@@ -59,10 +72,47 @@ def test_server_registers_tools_and_connection_helpers(monkeypatch):
 
     assert server.mcp.name == "Test Kanboard"
     assert "getTask" in server.mcp.tools
-    assert "setTaskTags" in server.mcp.tools
+    assert "setTaskTags" not in server.mcp.tools
+    assert "removeTask" not in server.mcp.tools
+    assert "get_server_info" not in server.mcp.tools
     assert server.mcp.tools["test_connection"]() == {
         "success": True,
-        "data": {"connected": True},
+        "data": {
+            "connected": True,
+            "username": "jsonrpc",
+            "server_url": "https://kanboard.example.test/jsonrpc.php",
+        },
+    }
+    config_info = server.mcp.tools["get_config_info"]()
+    assert (
+        config_info["data"]["kanboard_url"]
+        == "https://kanboard.example.test/jsonrpc.php"
+    )
+    assert "password" not in config_info["data"]
+    assert config_info["data"]["tool_profile"] == "core"
+    assert config_info["data"]["python_executable"]
+    assert config_info["data"]["server_module_path"].endswith("server.py")
+    assert config_info["data"]["boards_module_path"].endswith("boards.py")
+
+
+def test_full_tool_profile_registers_complete_surface(monkeypatch):
+    fake_client = FakeServerClient()
+    monkeypatch.setattr("kanboard_mcp.server.FastMCP", FakeFastMCP)
+    monkeypatch.setattr("kanboard_mcp.server.create_client", lambda _: fake_client)
+
+    server = KanboardMCPServer(make_config(tool_profile="full"))
+
+    assert "getTask" in server.mcp.tools
+    assert "setTaskTags" in server.mcp.tools
+    assert "removeTask" in server.mcp.tools
+    assert "get_server_info" in server.mcp.tools
+    assert server.mcp.tools["test_connection"]() == {
+        "success": True,
+        "data": {
+            "connected": True,
+            "username": "jsonrpc",
+            "server_url": "https://kanboard.example.test/jsonrpc.php",
+        },
     }
     assert server.mcp.tools["get_server_info"]() == {
         "success": True,
@@ -74,12 +124,60 @@ def test_server_registers_tools_and_connection_helpers(monkeypatch):
         == "https://kanboard.example.test/jsonrpc.php"
     )
     assert "password" not in config_info["data"]
+    assert config_info["data"]["tool_profile"] == "full"
+
+
+def test_core_tool_profile_registers_reduced_daily_driver_surface(monkeypatch):
+    fake_client = FakeServerClient()
+    monkeypatch.setattr("kanboard_mcp.server.FastMCP", FakeFastMCP)
+    monkeypatch.setattr("kanboard_mcp.server.create_client", lambda _: fake_client)
+
+    server = KanboardMCPServer(make_config(tool_profile="core"))
+
+    assert set(server.mcp.tools) == {
+        "getTask",
+        "searchTasks",
+        "getAllTasks",
+        "createTask",
+        "updateTask",
+        "moveTaskToColumnByName",
+        "openTask",
+        "closeTask",
+        "createComment",
+        "getAllComments",
+        "getAllProjects",
+        "getColumns",
+        "getBoard",
+        "test_connection",
+        "get_config_info",
+    }
+    assert "removeTask" not in server.mcp.tools
+    assert "get_server_info" not in server.mcp.tools
+    assert server.mcp.tools["get_config_info"]()["data"]["tool_profile"] == "core"
+
+
+def test_enabled_tool_modules_limits_registered_modules(monkeypatch):
+    fake_client = FakeServerClient()
+    monkeypatch.setattr("kanboard_mcp.server.FastMCP", FakeFastMCP)
+    monkeypatch.setattr("kanboard_mcp.server.create_client", lambda _: fake_client)
+
+    server = KanboardMCPServer(
+        make_config(enabled_tool_modules=("tasks", "tags"))
+    )
+
+    assert "getTask" in server.mcp.tools
+    assert "setTaskTags" not in server.mcp.tools
+    assert "getAllProjects" not in server.mcp.tools
+    assert "createComment" not in server.mcp.tools
+    assert "test_connection" in server.mcp.tools
 
 
 def test_connection_helpers_redact_user_records(monkeypatch):
     fake_client = FakeServerClient()
     fake_client.connection_result = {
         "connected": True,
+        "username": "jsonrpc",
+        "server_url": "https://kanboard.example.test/jsonrpc.php",
         "user": {
             "id": 2,
             "username": "jcherry",
@@ -102,18 +200,14 @@ def test_connection_helpers_redact_user_records(monkeypatch):
     monkeypatch.setattr("kanboard_mcp.server.FastMCP", FakeFastMCP)
     monkeypatch.setattr("kanboard_mcp.server.create_client", lambda _: fake_client)
 
-    server = KanboardMCPServer(make_config())
+    server = KanboardMCPServer(make_config(tool_profile="full"))
 
     assert server.mcp.tools["test_connection"]() == {
         "success": True,
         "data": {
             "connected": True,
-            "user": {
-                "id": 2,
-                "username": "jcherry",
-                "twofactor_secret": "[redacted]",
-                "twofactor_activated": True,
-            },
+            "username": "jsonrpc",
+            "server_url": "https://kanboard.example.test/jsonrpc.php",
         },
     }
     assert server.mcp.tools["get_server_info"]() == {
@@ -136,7 +230,7 @@ def test_connection_helpers_return_error_payloads(monkeypatch):
     monkeypatch.setattr("kanboard_mcp.server.FastMCP", FakeFastMCP)
     monkeypatch.setattr("kanboard_mcp.server.create_client", lambda _: fake_client)
 
-    server = KanboardMCPServer(make_config())
+    server = KanboardMCPServer(make_config(tool_profile="full"))
 
     assert server.mcp.tools["test_connection"]() == {"success": False, "error": "down"}
     assert server.mcp.tools["get_server_info"]() == {"success": False, "error": "nope"}

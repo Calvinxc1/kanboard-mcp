@@ -17,13 +17,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def createCategory(
         project_id: int, name: str, color_id: str | None = None
     ) -> dict[str, Any]:
-        """Create a category in a project.
-
-        Args:
-            project_id: The ID of the project
-            name: The category name
-            color_id: Optional Kanboard color ID
-        """
+        """Create a category in a project."""
         try:
             category_data = {
                 "project_id": project_id,
@@ -46,13 +40,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def updateCategory(
         category_id: int, name: str | None = None, color_id: str | None = None
     ) -> dict[str, Any]:
-        """Update a category.
-
-        Args:
-            category_id: The ID of the category to update
-            name: Optional new category name
-            color_id: Optional Kanboard color ID
-        """
+        """Update a category."""
         try:
             category_data = {"id": category_id}
             if name is not None:
@@ -68,11 +56,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getCategory(category_id: int) -> dict[str, Any]:
-        """Get a specific category by ID.
-
-        Args:
-            category_id: The ID of the category to retrieve
-        """
+        """Get a specific category by ID."""
         try:
             category = client.call_api(
                 method_name="get_category", category_id=category_id
@@ -84,11 +68,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getAllCategories(project_id: int) -> dict[str, Any]:
-        """Get all categories for a project.
-
-        Args:
-            project_id: The ID of the project to get categories for
-        """
+        """Get all categories for a project."""
         try:
             categories = client.call_api(
                 method_name="get_all_categories", project_id=project_id

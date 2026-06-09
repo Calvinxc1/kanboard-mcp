@@ -16,11 +16,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getUser(user_id: int) -> dict[str, Any]:
-        """Get a specific user by ID.
-
-        Args:
-            user_id: The ID of the user to retrieve
-        """
+        """Get a specific user by ID."""
         try:
             user = client.call_api(method_name="get_user", user_id=user_id)
             return {"success": True, "data": redact_user_record(user)}
@@ -30,11 +26,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getUserByName(username: str) -> dict[str, Any]:
-        """Get a specific user by username.
-
-        Args:
-            username: The username of the user to retrieve
-        """
+        """Get a specific user by username."""
         try:
             user = client.call_api(method_name="get_user_by_name", username=username)
             return {"success": True, "data": redact_user_record(user)}

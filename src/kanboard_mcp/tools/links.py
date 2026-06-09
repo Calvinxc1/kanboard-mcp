@@ -17,13 +17,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def createTaskLink(
         task_id: int, opposite_task_id: int, link_id: int
     ) -> dict[str, Any]:
-        """Create a link between two tasks.
-
-        Args:
-            task_id: The ID of the first task
-            opposite_task_id: The ID of the second task to link to
-            link_id: The ID of the link type
-        """
+        """Create a link between two tasks."""
         try:
             success = client.call_api(
                 method_name="create_task_link",
@@ -40,14 +34,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     def updateTaskLink(
         task_link_id: int, task_id: int, opposite_task_id: int, link_id: int
     ) -> dict[str, Any]:
-        """Update an existing task link.
-
-        Args:
-            task_link_id: The ID of the task link to update
-            task_id: The ID of the first task
-            opposite_task_id: The ID of the second task to link to
-            link_id: The ID of the link type
-        """
+        """Update an existing task link."""
         try:
             success = client.call_api(
                 method_name="update_task_link",
@@ -63,11 +50,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getTaskLinkById(task_link_id: int) -> dict[str, Any]:
-        """Get a specific task link by ID.
-
-        Args:
-            task_link_id: The ID of the task link to retrieve
-        """
+        """Get a specific task link by ID."""
         try:
             link = client.call_api(
                 method_name="get_task_link_by_id", task_link_id=task_link_id
@@ -79,11 +62,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getAllTaskLinks(task_id: int) -> dict[str, Any]:
-        """Get all links for a task.
-
-        Args:
-            task_id: The ID of the task to get links for
-        """
+        """Get all links for a task."""
         try:
             links = client.call_api(method_name="get_all_task_links", task_id=task_id)
             return {"success": True, "data": links, "count": len(links) if links else 0}
@@ -93,11 +72,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def removeTaskLink(task_link_id: int) -> dict[str, Any]:
-        """Remove (delete) a task link.
-
-        Args:
-            task_link_id: The ID of the task link to remove
-        """
+        """Remove (delete) a task link."""
         try:
             success = client.call_api(
                 method_name="remove_task_link", task_link_id=task_link_id
@@ -119,11 +94,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getOppositeLinkId(link_id: int) -> dict[str, Any]:
-        """Get the opposite link ID for a given link.
-
-        Args:
-            link_id: The ID of the link to get the opposite for
-        """
+        """Get the opposite link ID for a given link."""
         try:
             opposite_id = client.call_api(
                 method_name="get_opposite_link_id", link_id=link_id
@@ -135,11 +106,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getLinkByLabel(label: str) -> dict[str, Any]:
-        """Get a link by its label.
-
-        Args:
-            label: The label of the link to retrieve
-        """
+        """Get a link by its label."""
         try:
             link = client.call_api(method_name="get_link_by_label", label=label)
             return {"success": True, "data": link}
@@ -149,11 +116,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getLinkById(link_id: int) -> dict[str, Any]:
-        """Get a link by its ID.
-
-        Args:
-            link_id: The ID of the link to retrieve
-        """
+        """Get a link by its ID."""
         try:
             link = client.call_api(method_name="get_link_by_id", link_id=link_id)
             return {"success": True, "data": link}
@@ -163,12 +126,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def createLink(label: str, opposite_label: str) -> dict[str, Any]:
-        """Create a new link type.
-
-        Args:
-            label: The label of the link
-            opposite_label: The label of the opposite link
-        """
+        """Create a new link type."""
         try:
             link_id = client.call_api(
                 method_name="create_link", label=label, opposite_label=opposite_label
@@ -180,13 +138,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def updateLink(link_id: int, label: str, opposite_label: str) -> dict[str, Any]:
-        """Update an existing link type.
-
-        Args:
-            link_id: The ID of the link to update
-            label: The new label of the link
-            opposite_label: The new label of the opposite link
-        """
+        """Update an existing link type."""
         try:
             success = client.call_api(
                 method_name="update_link",
@@ -201,11 +153,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def removeLink(link_id: int) -> dict[str, Any]:
-        """Remove (delete) a link type.
-
-        Args:
-            link_id: The ID of the link to remove
-        """
+        """Remove (delete) a link type."""
         try:
             success = client.call_api(method_name="remove_link", link_id=link_id)
             return {"success": True, "data": {"removed": success}}

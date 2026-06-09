@@ -34,6 +34,57 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+TOOL_MODULES = {
+    "projects": projects,
+    "tasks": tasks,
+    "categories": categories,
+    "columns": columns,
+    "boards": boards,
+    "comments": comments,
+    "users": users,
+    "links": links,
+    "subtasks": subtasks,
+    "swimlanes": swimlanes,
+    "tags": tags,
+    "files": files,
+}
+
+CORE_TOOL_NAMES = frozenset(
+    {
+        "getTask",
+        "searchTasks",
+        "getAllTasks",
+        "createTask",
+        "updateTask",
+        "moveTaskToColumnByName",
+        "openTask",
+        "closeTask",
+        "createComment",
+        "getAllComments",
+        "getAllProjects",
+        "getColumns",
+        "getBoard",
+        "test_connection",
+        "get_config_info",
+    }
+)
+
+
+class ToolProfileMCP:
+    """MCP registration proxy that only exposes enabled tool names."""
+
+    def __init__(self, mcp: FastMCP, enabled_tool_names: frozenset[str] | None):
+        self._mcp = mcp
+        self._enabled_tool_names = enabled_tool_names
+
+    def tool(self):
+        def decorator(func):
+            if self._enabled_tool_names is None or func.__name__ in self._enabled_tool_names:
+                return self._mcp.tool()(func)
+            return func
+
+        return decorator
+
 
 class KanboardMCPServer:
     """Kanboard MCP Server implementation."""
@@ -57,42 +108,57 @@ class KanboardMCPServer:
 
     def _register_tools(self) -> None:
         """Register all Kanboard API tools."""
-        tool_modules = [
-            projects,
-            tasks,
-            categories,
-            columns,
-            boards,
-            comments,
-            users,
-            links,
-            subtasks,
-            swimlanes,
-            tags,
-            files,
-        ]
+        enabled_tool_names = self._enabled_tool_names()
+        mcp = ToolProfileMCP(self.mcp, enabled_tool_names)
+        module_names = (
+            self.config.server.enabled_tool_modules
+            if self.config.server.enabled_tool_modules is not None
+            else tuple(TOOL_MODULES)
+        )
 
-        for module in tool_modules:
+        for module_name in module_names:
+            module = TOOL_MODULES[module_name]
             if hasattr(module, "register_tools"):
-                module.register_tools(self.mcp, self.client)
+                module.register_tools(mcp, self.client)
                 logger.info(f"Registered tools from {module.__name__}")
+
+    def _enabled_tool_names(self) -> frozenset[str] | None:
+        """Return the configured MCP tool allowlist, or None for all tools."""
+        if self.config.server.tool_profile == "core":
+            return CORE_TOOL_NAMES
+        return None
 
     def _register_connection_tools(self) -> None:
         """Register connection and server management tools."""
 
-        @self.mcp.tool()
+        mcp = ToolProfileMCP(self.mcp, self._enabled_tool_names())
+
+        @mcp.tool()
         def test_connection() -> dict[str, Any]:
             """Test connection to Kanboard server and return status."""
             try:
                 result = self.client.test_connection()
-                if isinstance(result, dict) and "user" in result:
-                    result = {**result, "user": redact_user_record(result["user"])}
-                return {"success": True, "data": result}
+                return {
+                    "success": True,
+                    "data": {
+                        "connected": bool(
+                            isinstance(result, dict) and result.get("connected")
+                        ),
+                        "username": (
+                            result.get("username") if isinstance(result, dict) else None
+                        ),
+                        "server_url": (
+                            result.get("server_url")
+                            if isinstance(result, dict)
+                            else None
+                        ),
+                    },
+                }
             except Exception as e:
                 logger.error(f"Connection test failed: {e}")
                 return {"success": False, "error": str(e)}
 
-        @self.mcp.tool()
+        @mcp.tool()
         def get_server_info() -> dict[str, Any]:
             """Get Kanboard server information and capabilities."""
             try:
@@ -107,7 +173,7 @@ class KanboardMCPServer:
                 logger.error(f"Failed to get server info: {e}")
                 return {"success": False, "error": str(e)}
 
-        @self.mcp.tool()
+        @mcp.tool()
         def get_config_info() -> dict[str, Any]:
             """Get current configuration information (without sensitive data)."""
             return {
@@ -122,6 +188,11 @@ class KanboardMCPServer:
                     "kanboard_username": self.config.kanboard.username,
                     "verify_ssl": self.config.kanboard.verify_ssl,
                     "timeout": self.config.kanboard.timeout,
+                    "tool_profile": self.config.server.tool_profile,
+                    "enabled_tool_modules": self.config.server.enabled_tool_modules,
+                    "python_executable": sys.executable,
+                    "server_module_path": __file__,
+                    "boards_module_path": boards.__file__,
                 },
             }
 

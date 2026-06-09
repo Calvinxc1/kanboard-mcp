@@ -9,6 +9,44 @@ from ..client import KanboardClient, KanboardClientError
 
 logger = logging.getLogger(__name__)
 
+PROJECT_SUMMARY_FIELDS = (
+    "id",
+    "name",
+    "identifier",
+    "is_active",
+    "description",
+    "priority_start",
+    "priority_end",
+)
+PROJECT_ZERO_VALUE_FIELDS = {"priority_start", "priority_end"}
+
+
+def include_project_summary_field(field: str, value: Any) -> bool:
+    """Return whether a project summary field carries useful information."""
+    if value in (None, ""):
+        return False
+    return value != 0 or field in PROJECT_ZERO_VALUE_FIELDS
+
+
+def summarize_project(project: Any) -> Any:
+    """Return the compact project projection used by project list reads."""
+    if not isinstance(project, dict):
+        return project
+
+    return {
+        field: project[field]
+        for field in PROJECT_SUMMARY_FIELDS
+        if field in project and include_project_summary_field(field, project[field])
+    }
+
+
+def summarize_projects(projects: Any) -> Any:
+    """Return compact project projections while preserving non-list API results."""
+    if not isinstance(projects, list):
+        return projects
+
+    return [summarize_project(project) for project in projects]
+
 
 def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     """Register project-related tools."""
@@ -20,14 +58,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         owner_id: int | None = None,
         identifier: str | None = None,
     ) -> dict[str, Any]:
-        """Create a new project.
-
-        Args:
-            name: The project name
-            description: Optional project description
-            owner_id: Optional owner user ID
-            identifier: Optional project identifier
-        """
+        """Create a new project."""
         try:
             project_data = {"name": name}
             if description is not None:
@@ -56,20 +87,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         priority_start: int | None = None,
         priority_end: int | None = None,
     ) -> dict[str, Any]:
-        """Update a project.
-
-        Args:
-            project_id: The ID of the project to update
-            name: Optional new project name
-            description: Optional new project description
-            owner_id: Optional owner user ID
-            identifier: Optional project identifier
-            start_date: Optional project start date
-            end_date: Optional project end date
-            priority_default: Optional default priority for new tasks
-            priority_start: Optional lowest priority value for the project
-            priority_end: Optional highest priority value for the project
-        """
+        """Update a project."""
         try:
             project_data = {"project_id": project_id}
             optional_fields = {
@@ -136,9 +154,10 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """Get all projects from Kanboard."""
         try:
             projects = client.call_api(method_name="get_all_projects")
+            summarized_projects = summarize_projects(projects)
             return {
                 "success": True,
-                "data": projects,
+                "data": summarized_projects,
                 "count": len(projects) if projects else 0,
             }
         except KanboardClientError as e:
@@ -147,11 +166,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getProjectById(project_id: int) -> dict[str, Any]:
-        """Get a specific project by ID.
-
-        Args:
-            project_id: The ID of the project to retrieve
-        """
+        """Get a specific project by ID."""
         try:
             project = client.call_api(
                 method_name="get_project_by_id", project_id=project_id
@@ -163,11 +178,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getProjectByName(project_name: str) -> dict[str, Any]:
-        """Get a specific project by name.
-
-        Args:
-            project_name: The name of the project to retrieve
-        """
+        """Get a specific project by name."""
         try:
             project = client.call_api(
                 method_name="get_project_by_name", project_name=project_name
@@ -179,11 +190,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getProjectActivity(project_id: int) -> dict[str, Any]:
-        """Get activity for a specific project.
-
-        Args:
-            project_id: The ID of the project to get activity for
-        """
+        """Get activity for a specific project."""
         try:
             activity = client.call_api(
                 method_name="get_project_activity", project_id=project_id
@@ -199,11 +206,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
 
     @mcp.tool()
     def getProjectActivities(project_id: int) -> dict[str, Any]:
-        """Get activities for a specific project.
-
-        Args:
-            project_id: The ID of the project to get activities for
-        """
+        """Get activities for a specific project."""
         try:
             activities = client.call_api(
                 method_name="get_project_activities", project_id=project_id

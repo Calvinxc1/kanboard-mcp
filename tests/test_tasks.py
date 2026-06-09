@@ -172,7 +172,23 @@ def test_batch_move_tasks_returns_partial_failures(fake_mcp):
 
 
 def test_get_all_tasks_includes_status_only_when_provided(fake_mcp):
-    client = ScriptedClient(responses=[[], [{"id": 42}]])
+    full_task = {
+        "id": 42,
+        "title": "Wire rack",
+        "column_id": 6,
+        "swimlane_id": 1,
+        "is_active": 0,
+        "owner_id": 0,
+        "category_id": 0,
+        "priority": 2,
+        "date_modification": 1780366986,
+        "date_due": 0,
+        "reference": "",
+        "url": "https://kanboard.example.test/task/42",
+        "recurrence_status": 0,
+        "color": {"name": "Green", "background": "rgb(189, 244, 203)"},
+    }
+    client = ScriptedClient(responses=[[], [full_task]])
     register_tools(fake_mcp, client)
 
     assert fake_mcp.tools["getAllTasks"](project_id=1) == {
@@ -182,7 +198,18 @@ def test_get_all_tasks_includes_status_only_when_provided(fake_mcp):
     }
     assert fake_mcp.tools["getAllTasks"](project_id=1, status_id=1) == {
         "success": True,
-        "data": [{"id": 42}],
+        "data": [
+            {
+                "id": 42,
+                "title": "Wire rack",
+                "column_id": 6,
+                "swimlane_id": 1,
+                "is_active": 0,
+                "owner_id": 0,
+                "category_id": 0,
+                "priority": 2,
+            }
+        ],
         "count": 1,
     }
     assert [call["kwargs"] for call in client.calls] == [
@@ -192,29 +219,63 @@ def test_get_all_tasks_includes_status_only_when_provided(fake_mcp):
 
 
 def test_search_tasks_matches_kanboard_api_shape(fake_mcp):
-    client = ScriptedClient(responses=[[{"id": 42}]])
+    client = ScriptedClient(
+        responses=[
+            [
+                {
+                    "id": 42,
+                    "title": "Wire rack",
+                    "project_id": 1,
+                    "column_id": 6,
+                    "swimlane_id": 1,
+                    "category_id": 0,
+                    "priority": 0,
+                    "date_modification": 1780366986,
+                    "date_due": 0,
+                    "reference": "",
+                    "url": "https://kanboard.example.test/task/42",
+                    "recurrence_status": 0,
+                    "color": {"name": "Green"},
+                }
+            ]
+        ]
+    )
     register_tools(fake_mcp, client)
 
     signature = inspect.signature(fake_mcp.tools["searchTasks"])
     assert list(signature.parameters) == ["project_id", "query"]
     assert "do not pass status_id" in inspect.getdoc(fake_mcp.tools["searchTasks"])
+    assert "tag:" not in inspect.getdoc(fake_mcp.tools["searchTasks"])
     assert "Free text searches task ID/title" in inspect.getdoc(
         fake_mcp.tools["searchTasks"]
     )
 
     result = fake_mcp.tools["searchTasks"](
         project_id=1,
-        query="tag:homelab category:2 assignee:admin due:2026-06-01 status:open",
+        query="category:2 assignee:admin due:2026-06-01 status:open",
     )
 
-    assert result == {"success": True, "data": [{"id": 42}], "count": 1}
+    assert result == {
+        "success": True,
+        "data": [
+            {
+                "id": 42,
+                "title": "Wire rack",
+                "column_id": 6,
+                "swimlane_id": 1,
+                "category_id": 0,
+                "priority": 0,
+            }
+        ],
+        "count": 1,
+    }
     assert client.calls == [
         {
             "args": (),
             "kwargs": {
                 "method_name": "search_tasks",
                 "project_id": 1,
-                "query": "tag:homelab category:2 assignee:admin due:2026-06-01 status:open",
+                "query": "category:2 assignee:admin due:2026-06-01 status:open",
             },
         }
     ]
@@ -223,10 +284,25 @@ def test_search_tasks_matches_kanboard_api_shape(fake_mcp):
 def test_task_read_and_status_wrappers(fake_mcp):
     client = ScriptedClient(
         responses=[
-            {"id": 42},
-            {"id": 43},
-            [{"id": 44}],
-            [{"id": 45}],
+            {
+                "id": 42,
+                "title": "Build",
+                "project_id": 1,
+                "date_modification": 1780366986,
+                "description": "Full task body",
+                "reference": "",
+                "date_due": 0,
+                "is_active": 0,
+                "category_id": 0,
+                "priority": 0,
+                "recurrence_status": 0,
+                "color": {"name": "Green"},
+            },
+            [{"id": 10}, {"id": 11}],
+            [{"id": 20}, {"id": 21}, {"id": 22}],
+            {"id": 43, "title": "Reference", "color": {"name": "Blue"}},
+            [{"id": 44, "title": "Late", "recurrence_factor": 1}],
+            [{"id": 45, "title": "Late project", "external_uri": "ignored"}],
             True,
             True,
             True,
@@ -236,20 +312,31 @@ def test_task_read_and_status_wrappers(fake_mcp):
 
     assert fake_mcp.tools["getTask"](task_id=42) == {
         "success": True,
-        "data": {"id": 42},
+        "data": {
+            "id": 42,
+            "title": "Build",
+            "project_id": 1,
+            "date_modification": 1780366986,
+            "description": "Full task body",
+            "is_active": 0,
+            "category_id": 0,
+            "priority": 0,
+            "nb_comments": 2,
+            "nb_subtasks": 3,
+        },
     }
     assert fake_mcp.tools["getTaskByReference"](project_id=1, reference="REF") == {
         "success": True,
-        "data": {"id": 43},
+        "data": {"id": 43, "title": "Reference"},
     }
     assert fake_mcp.tools["getOverdueTasks"]() == {
         "success": True,
-        "data": [{"id": 44}],
+        "data": [{"id": 44, "title": "Late"}],
         "count": 1,
     }
     assert fake_mcp.tools["getOverdueTasksByProject"](project_id=1) == {
         "success": True,
-        "data": [{"id": 45}],
+        "data": [{"id": 45, "title": "Late project"}],
         "count": 1,
     }
     assert fake_mcp.tools["openTask"](task_id=42) == {

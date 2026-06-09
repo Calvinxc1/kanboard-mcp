@@ -82,6 +82,8 @@ KANBOARD_VERIFY_SSL=true
 KANBOARD_TIMEOUT=30
 KANBOARD_MAX_RETRIES=3
 KANBOARD_RETRY_DELAY=1.0
+KANBOARD_TOOL_PROFILE=core
+KANBOARD_ENABLED_TOOL_MODULES=
 
 # MCP Server settings
 MCP_SERVER_NAME="Kanboard MCP Server"
@@ -180,6 +182,31 @@ The server provides built-in tools for testing:
 - `get_server_info`: Get server information and capabilities
 - `get_config_info`: Get current configuration (without sensitive data)
 
+`get_config_info` also reports the Python executable and connector module paths
+currently serving the MCP process. Use those paths to confirm the client is
+running the intended editable clone after local source edits.
+
+### Tool Profiles
+
+The default MCP API profile is `core`, which keeps the daily-driver tool surface small for lower token usage.
+
+The `core` profile exposes task, comment, project, board lookup, and basic
+diagnostic tools used for common board workflows. It omits tag management by
+default because active Homelab tasks no longer carry tag assignments. Set
+`KANBOARD_TOOL_PROFILE=full` if you need the complete API surface, including tag
+management and rare or higher-risk tools such as deletion, file management, link
+type mutation, column mutation, swimlane mutation, and broad user/dashboard
+helpers.
+
+You can also limit registration to specific tool modules:
+
+```env
+KANBOARD_ENABLED_TOOL_MODULES=tasks,tags,comments
+```
+
+When this variable is set, only the listed modules are registered. Connection
+helper tools are still controlled by the selected tool profile.
+
 ## API Tools
 
 ### Projects
@@ -202,7 +229,7 @@ The server provides built-in tools for testing:
 - `openTask(task_id)`: Open task
 - `closeTask(task_id)`: Close task
 - `removeTask(task_id)`: Delete task
-- `searchTasks(project_id, query)`: Search tasks with Kanboard search syntax. Free text searches task ID/title; use filters inside `query`, such as `status:open`, `status:closed`, `description:"runtime dependencies"`, `tag:"dependency"`, or `category:1234`.
+- `searchTasks(project_id, query)`: Search tasks with Kanboard search syntax. Free text searches task ID/title; use filters inside `query`, such as `status:open`, `status:closed`, `description:"runtime dependencies"`, or `category:1234`.
 
 ### Comments
 
