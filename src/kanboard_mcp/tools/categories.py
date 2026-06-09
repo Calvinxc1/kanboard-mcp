@@ -9,6 +9,28 @@ from ..client import KanboardClient, KanboardClientError
 
 logger = logging.getLogger(__name__)
 
+CATEGORY_SUMMARY_FIELDS = ("id", "name", "color_id")
+
+
+def summarize_category(category: Any) -> Any:
+    """Return compact category fields for list responses."""
+    if not isinstance(category, dict):
+        return category
+
+    return {
+        field: category[field]
+        for field in CATEGORY_SUMMARY_FIELDS
+        if field in category and category[field] not in (None, "")
+    }
+
+
+def summarize_categories(categories: Any) -> Any:
+    """Return compact category projections while preserving non-list API results."""
+    if not isinstance(categories, list):
+        return categories
+
+    return [summarize_category(category) for category in categories]
+
 
 def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     """Register category-related tools."""
@@ -75,7 +97,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             )
             return {
                 "success": True,
-                "data": categories,
+                "data": summarize_categories(categories),
                 "count": len(categories) if categories else 0,
             }
         except KanboardClientError as e:

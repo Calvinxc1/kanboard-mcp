@@ -99,8 +99,12 @@ from kanboard_mcp.tools import (
             categories,
             "getAllCategories",
             {"project_id": 1},
-            [{"id": 11}],
-            {"success": True, "data": [{"id": 11}], "count": 1},
+            [{"id": 11, "project_id": 1, "name": "Network", "color_id": "blue"}],
+            {
+                "success": True,
+                "data": [{"id": 11, "name": "Network", "color_id": "blue"}],
+                "count": 1,
+            },
             {"method_name": "get_all_categories", "project_id": 1},
         ),
         (
@@ -281,8 +285,33 @@ from kanboard_mcp.tools import (
             subtasks,
             "getAllSubtasks",
             {"task_id": 42},
-            [{"id": 14}],
-            {"success": True, "data": [{"id": 14}], "count": 1},
+            [
+                {
+                    "id": 14,
+                    "task_id": 42,
+                    "title": "Cable",
+                    "status": 1,
+                    "user_id": 0,
+                    "username": "",
+                    "time_estimated": 0,
+                    "time_spent": 0,
+                    "date_creation": 123,
+                }
+            ],
+            {
+                "success": True,
+                "data": [
+                    {
+                        "id": 14,
+                        "title": "Cable",
+                        "status": 1,
+                        "user_id": 0,
+                        "time_estimated": 0,
+                        "time_spent": 0,
+                    }
+                ],
+                "count": 1,
+            },
             {"method_name": "get_all_subtasks", "task_id": 42},
         ),
         (
@@ -868,8 +897,29 @@ def test_get_board_summarizes_live_swimlane_column_shape(fake_mcp):
             links,
             "getAllLinks",
             {},
-            [[{"id": 3}]],
-            {"success": True, "data": [{"id": 3}], "count": 1},
+            [
+                [
+                    {
+                        "id": 3,
+                        "label": "blocks",
+                        "opposite_id": 4,
+                        "opposite_label": "is blocked by",
+                        "date_creation": 123,
+                    }
+                ]
+            ],
+            {
+                "success": True,
+                "data": [
+                    {
+                        "id": 3,
+                        "label": "blocks",
+                        "opposite_id": 4,
+                        "opposite_label": "is blocked by",
+                    }
+                ],
+                "count": 1,
+            },
             [{"method_name": "get_all_links"}],
         ),
         (
@@ -884,8 +934,34 @@ def test_get_board_summarizes_live_swimlane_column_shape(fake_mcp):
             links,
             "getAllTaskLinks",
             {"task_id": 42},
-            [[{"id": 4}]],
-            {"success": True, "data": [{"id": 4}], "count": 1},
+            [
+                [
+                    {
+                        "id": 4,
+                        "task_id": 42,
+                        "link_id": 3,
+                        "label": "blocks",
+                        "opposite_task_id": 99,
+                        "opposite_title": "Order parts",
+                        "is_active": 1,
+                        "date_creation": 123,
+                    }
+                ]
+            ],
+            {
+                "success": True,
+                "data": [
+                    {
+                        "id": 4,
+                        "link_id": 3,
+                        "label": "blocks",
+                        "opposite_task_id": 99,
+                        "opposite_title": "Order parts",
+                        "is_active": 1,
+                    }
+                ],
+                "count": 1,
+            },
             [{"method_name": "get_all_task_links", "task_id": 42}],
         ),
         (

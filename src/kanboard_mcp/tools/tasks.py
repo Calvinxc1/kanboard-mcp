@@ -32,6 +32,13 @@ TASK_DETAIL_FIELDS = (
     "nb_comments",
     "nb_subtasks",
 )
+TASK_RECURRENCE_FIELDS = (
+    "recurrence_status",
+    "recurrence_trigger",
+    "recurrence_timeframe",
+    "recurrence_basedate",
+    "recurrence_factor",
+)
 TASK_EMPTY_SENTINEL_FIELDS = {"reference"}
 TASK_ZERO_SENTINEL_FIELDS = {"date_due"}
 
@@ -64,11 +71,20 @@ def detail_task(task: Any) -> Any:
     if not isinstance(task, dict):
         return task
 
-    return {
+    detailed_task = {
         field: task[field]
         for field in TASK_DETAIL_FIELDS
         if field in task and include_task_field(field, task[field])
     }
+    if int(task.get("recurrence_status") or 0) != 0:
+        detailed_task.update(
+            {
+                field: task[field]
+                for field in TASK_RECURRENCE_FIELDS
+                if field in task and include_task_field(field, task[field])
+            }
+        )
+    return detailed_task
 
 
 def enrich_task_counts(task: Any, task_id: int, client: KanboardClient) -> Any:
@@ -313,6 +329,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         priority: int | None = None,
         reference: str | None = None,
         tags: list[str] | None = None,
+        recurrence_status: int | None = None,
+        recurrence_trigger: int | None = None,
+        recurrence_timeframe: int | None = None,
+        recurrence_basedate: int | None = None,
+        recurrence_factor: int | None = None,
     ) -> dict[str, Any]:
         """Create a task. Dates use YYYY-MM-DD; priority uses the project range."""
         try:
@@ -344,6 +365,20 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 task_data["reference"] = reference
             if tags is not None:
                 task_data["tags"] = tags
+            recurrence_fields = {
+                "recurrence_status": recurrence_status,
+                "recurrence_trigger": recurrence_trigger,
+                "recurrence_timeframe": recurrence_timeframe,
+                "recurrence_basedate": recurrence_basedate,
+                "recurrence_factor": recurrence_factor,
+            }
+            task_data.update(
+                {
+                    field: value
+                    for field, value in recurrence_fields.items()
+                    if value is not None
+                }
+            )
 
             task_id = client.call_api(method_name="create_task", **task_data)
             return {"success": True, "data": {"task_id": task_id}}
@@ -362,6 +397,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         color_id: str | None = None,
         priority: int | None = None,
         reference: str | None = None,
+        recurrence_status: int | None = None,
+        recurrence_trigger: int | None = None,
+        recurrence_timeframe: int | None = None,
+        recurrence_basedate: int | None = None,
+        recurrence_factor: int | None = None,
     ) -> dict[str, Any]:
         """Update a task. Dates use YYYY-MM-DD; priority uses the project range."""
         try:
@@ -384,6 +424,20 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 task_data["priority"] = priority
             if reference is not None:
                 task_data["reference"] = reference
+            recurrence_fields = {
+                "recurrence_status": recurrence_status,
+                "recurrence_trigger": recurrence_trigger,
+                "recurrence_timeframe": recurrence_timeframe,
+                "recurrence_basedate": recurrence_basedate,
+                "recurrence_factor": recurrence_factor,
+            }
+            task_data.update(
+                {
+                    field: value
+                    for field, value in recurrence_fields.items()
+                    if value is not None
+                }
+            )
 
             success = client.call_api(method_name="update_task", **task_data)
             return {"success": True, "data": {"updated": success}}

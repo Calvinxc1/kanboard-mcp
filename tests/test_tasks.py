@@ -16,6 +16,11 @@ def test_create_task_sends_required_and_optional_fields(fake_mcp):
         description="Use short screws",
         owner_id=5,
         tags=["homelab", "hardware"],
+        recurrence_status=1,
+        recurrence_trigger=1,
+        recurrence_timeframe=1,
+        recurrence_basedate=0,
+        recurrence_factor=3,
     )
 
     assert result == {"success": True, "data": {"task_id": 123}}
@@ -29,6 +34,11 @@ def test_create_task_sends_required_and_optional_fields(fake_mcp):
                 "description": "Use short screws",
                 "owner_id": 5,
                 "tags": ["homelab", "hardware"],
+                "recurrence_status": 1,
+                "recurrence_trigger": 1,
+                "recurrence_timeframe": 1,
+                "recurrence_basedate": 0,
+                "recurrence_factor": 3,
             },
         }
     ]
@@ -45,6 +55,36 @@ def test_update_task_omits_unset_optional_fields(fake_mcp):
         {
             "args": (),
             "kwargs": {"method_name": "update_task", "id": 42, "title": "New title"},
+        }
+    ]
+
+
+def test_update_task_passes_recurrence_fields(fake_mcp):
+    client = ScriptedClient(responses=[True])
+    register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["updateTask"](
+        task_id=90,
+        recurrence_status=1,
+        recurrence_trigger=1,
+        recurrence_timeframe=1,
+        recurrence_basedate=0,
+        recurrence_factor=3,
+    )
+
+    assert result == {"success": True, "data": {"updated": True}}
+    assert client.calls == [
+        {
+            "args": (),
+            "kwargs": {
+                "method_name": "update_task",
+                "id": 90,
+                "recurrence_status": 1,
+                "recurrence_trigger": 1,
+                "recurrence_timeframe": 1,
+                "recurrence_basedate": 0,
+                "recurrence_factor": 3,
+            },
         }
     ]
 
@@ -296,6 +336,10 @@ def test_task_read_and_status_wrappers(fake_mcp):
                 "category_id": 0,
                 "priority": 0,
                 "recurrence_status": 0,
+                "recurrence_trigger": 1,
+                "recurrence_timeframe": 1,
+                "recurrence_basedate": 0,
+                "recurrence_factor": 3,
                 "color": {"name": "Green"},
             },
             [{"id": 10}, {"id": 11}],
@@ -353,6 +397,44 @@ def test_task_read_and_status_wrappers(fake_mcp):
     }
 
 
+def test_get_task_returns_active_recurrence_fields(fake_mcp):
+    client = ScriptedClient(
+        responses=[
+            {
+                "id": 90,
+                "title": "Quarterly maintenance",
+                "project_id": 1,
+                "date_due": "2026-06-30",
+                "description": "Recurring maintenance",
+                "recurrence_status": 1,
+                "recurrence_trigger": 1,
+                "recurrence_timeframe": 1,
+                "recurrence_basedate": 0,
+                "recurrence_factor": 3,
+            },
+            [],
+            [],
+        ]
+    )
+    register_tools(fake_mcp, client)
+
+    assert fake_mcp.tools["getTask"](task_id=90) == {
+        "success": True,
+        "data": {
+            "id": 90,
+            "title": "Quarterly maintenance",
+            "project_id": 1,
+            "date_due": "2026-06-30",
+            "description": "Recurring maintenance",
+            "nb_comments": 0,
+            "nb_subtasks": 0,
+            "recurrence_status": 1,
+            "recurrence_trigger": 1,
+            "recurrence_timeframe": 1,
+            "recurrence_basedate": 0,
+            "recurrence_factor": 3,
+        },
+    }
 def test_create_and_update_task_include_all_optional_fields(fake_mcp):
     client = ScriptedClient(responses=[42, True])
     register_tools(fake_mcp, client)
@@ -371,6 +453,11 @@ def test_create_and_update_task_include_all_optional_fields(fake_mcp):
         priority=2,
         reference="REF",
         tags=["homelab"],
+        recurrence_status=1,
+        recurrence_trigger=1,
+        recurrence_timeframe=1,
+        recurrence_basedate=0,
+        recurrence_factor=3,
     )
     fake_mcp.tools["updateTask"](
         task_id=42,
@@ -382,6 +469,11 @@ def test_create_and_update_task_include_all_optional_fields(fake_mcp):
         color_id="green",
         priority=1,
         reference="REF2",
+        recurrence_status=1,
+        recurrence_trigger=1,
+        recurrence_timeframe=1,
+        recurrence_basedate=0,
+        recurrence_factor=3,
     )
 
     assert client.calls[0]["kwargs"] == {
@@ -399,6 +491,11 @@ def test_create_and_update_task_include_all_optional_fields(fake_mcp):
         "priority": 2,
         "reference": "REF",
         "tags": ["homelab"],
+        "recurrence_status": 1,
+        "recurrence_trigger": 1,
+        "recurrence_timeframe": 1,
+        "recurrence_basedate": 0,
+        "recurrence_factor": 3,
     }
     assert client.calls[1]["kwargs"] == {
         "method_name": "update_task",
@@ -411,4 +508,9 @@ def test_create_and_update_task_include_all_optional_fields(fake_mcp):
         "color_id": "green",
         "priority": 1,
         "reference": "REF2",
+        "recurrence_status": 1,
+        "recurrence_trigger": 1,
+        "recurrence_timeframe": 1,
+        "recurrence_basedate": 0,
+        "recurrence_factor": 3,
     }

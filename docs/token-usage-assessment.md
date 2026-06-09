@@ -15,12 +15,15 @@ Applied low-risk changes:
 - Flat task summaries omit `project_id` because it is already supplied as the read-call parameter; `getTask` still includes it for detail reads.
 - Task summaries omit `null` values plus true empty sentinels such as `reference: ""` and `date_due: 0`, and no longer repeat the derivable task `url`.
 - Binary or stateful zero values remain explicit, including `is_active: 0`, `category_id: 0`, and `priority: 0`, so closed and unset states are not encoded by field absence.
-- The projection drops noisy fields such as recurrence details, nested `color`, external provider fields, and unused timestamps.
+- The projection drops noisy fields such as inactive recurrence details, nested `color`, external provider fields, and unused timestamps.
 - `getBoard` now preserves the board/column structure but summarizes every nested task with the same compact task shape, avoiding board-wide task bodies and repeated Kanboard filler fields.
 - `getBoard` also drops column descriptions and redundant count/score fields, keeping only `nb_open_tasks` for column task counts, and removes task/column IDs already implied by the swimlane/column nesting.
 - `getTask` now uses a single-task detail projection that includes `description`, `date_modification`, `nb_comments`, and `nb_subtasks`; this makes one-task lookup the explicit path for paying the token cost of task bodies, modification timestamps, and comment/subtask count hints.
+- `getTask` includes recurrence fields only when `recurrence_status` is non-zero, so recurring cards are readable while non-recurring cards keep the compact detail shape.
 - `test_connection` now returns only `connected`, `username`, and `server_url`, avoiding full Kanboard user records and latent `twofactor_secret` exposure.
 - `getAllComments` now returns compact comment records with `id`, `date_creation`, `username`, and `comment`.
+- `getAllSubtasks` now returns compact subtask records with actionable fields such as `id`, `title`, `status`, assignee, and time values, omitting task IDs and creation metadata already implied by the request.
+- `getAllCategories`, `getAllLinks`, and `getAllTaskLinks` now use compact list projections so category and dependency conventions can stay in `core` without restoring full raw Kanboard payloads.
 - `getAllProjects` now returns compact project records with `id`, `name`, `identifier`, `is_active`, `description`, `priority_start`, and `priority_end`, omitting empty/null/sentinel values and derivable URL objects.
 - Existing Kanboard API calls, parameter names, and the standard MCP response shape are unchanged.
 - Tool docstrings no longer repeat rote `Args:` parameter blocks already represented by the MCP JSON schema. Non-obvious usage guidance, such as Kanboard search syntax and due-date formats, is still preserved.
