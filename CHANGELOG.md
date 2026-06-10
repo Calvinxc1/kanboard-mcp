@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local editable MCP usage documentation for development workflows.
 
 ### Fixed
+- `updateSubtask` now resolves the parent `task_id` before calling Kanboard's
+  `update_subtask` API, allowing subtask status updates to persist.
 - `updateProject` omits unset optional fields, preserves Kanboard's
   `project_id` parameter shape, and verifies priority range updates persist.
 - `searchTasks` now matches Kanboard's API shape by accepting only

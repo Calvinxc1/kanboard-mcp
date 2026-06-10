@@ -76,7 +76,14 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     ) -> dict[str, Any]:
         """Update an existing subtask."""
         try:
-            subtask_data = {"id": subtask_id}
+            subtask = client.call_api(method_name="get_subtask", subtask_id=subtask_id)
+            task_id = subtask.get("task_id") if isinstance(subtask, dict) else None
+            if task_id is None:
+                raise KanboardClientError(
+                    f"Unable to resolve task_id for subtask {subtask_id}"
+                )
+
+            subtask_data = {"id": subtask_id, "task_id": task_id}
 
             if title is not None:
                 subtask_data["title"] = title

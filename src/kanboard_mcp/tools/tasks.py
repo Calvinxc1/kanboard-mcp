@@ -311,6 +311,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         column_id: int | None = None,
         swimlane_id: int | None = None,
         priority: int | None = None,
+        recurrence_status: int | None = None,
+        recurrence_trigger: int | None = None,
+        recurrence_factor: int | None = None,
+        recurrence_timeframe: int | None = None,
+        recurrence_basedate: int | None = None,
         reference: str | None = None,
         tags: list[str] | None = None,
     ) -> dict[str, Any]:
@@ -340,6 +345,16 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 task_data["swimlane_id"] = swimlane_id
             if priority is not None:
                 task_data["priority"] = priority
+            if recurrence_status is not None:
+                task_data["recurrence_status"] = recurrence_status
+            if recurrence_trigger is not None:
+                task_data["recurrence_trigger"] = recurrence_trigger
+            if recurrence_factor is not None:
+                task_data["recurrence_factor"] = recurrence_factor
+            if recurrence_timeframe is not None:
+                task_data["recurrence_timeframe"] = recurrence_timeframe
+            if recurrence_basedate is not None:
+                task_data["recurrence_basedate"] = recurrence_basedate
             if reference is not None:
                 task_data["reference"] = reference
             if tags is not None:
@@ -361,6 +376,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         date_due: str | None = None,
         color_id: str | None = None,
         priority: int | None = None,
+        recurrence_status: int | None = None,
+        recurrence_trigger: int | None = None,
+        recurrence_factor: int | None = None,
+        recurrence_timeframe: int | None = None,
+        recurrence_basedate: int | None = None,
         reference: str | None = None,
     ) -> dict[str, Any]:
         """Update a task. Dates use YYYY-MM-DD; priority uses the project range."""
@@ -382,6 +402,16 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
                 task_data["color_id"] = color_id
             if priority is not None:
                 task_data["priority"] = priority
+            if recurrence_status is not None:
+                task_data["recurrence_status"] = recurrence_status
+            if recurrence_trigger is not None:
+                task_data["recurrence_trigger"] = recurrence_trigger
+            if recurrence_factor is not None:
+                task_data["recurrence_factor"] = recurrence_factor
+            if recurrence_timeframe is not None:
+                task_data["recurrence_timeframe"] = recurrence_timeframe
+            if recurrence_basedate is not None:
+                task_data["recurrence_basedate"] = recurrence_basedate
             if reference is not None:
                 task_data["reference"] = reference
 
