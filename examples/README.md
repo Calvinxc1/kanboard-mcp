@@ -62,11 +62,15 @@ All configuration examples support these environment variables:
 | `KANBOARD_API_TOKEN` | Your Kanboard API token | `your_api_token_here` |
 | `KANBOARD_USERNAME` | Your Kanboard username | `your_username` |
 | `KANBOARD_VERIFY_SSL` | SSL certificate verification | `true` or `false` |
-| `KANBOARD_TOOL_PROFILE` | MCP tool profile | `full` or `core` |
+| `KANBOARD_TOOL_PROFILE` | Kanboard MCP tool profile | `full` or `core` |
 | `KANBOARD_ENABLED_TOOL_MODULES` | Optional module allowlist | `tasks,comments,boards` |
 | `DEBUG` | Enable debug logging | `true` or `false` |
 
-`core` is the default profile and reduces the MCP tool surface loaded into client context. Set `KANBOARD_TOOL_PROFILE=full` if you need the complete Kanboard API surface.
+`core` is the default profile and reduces the MCP tool surface loaded into client
+context. Set `KANBOARD_TOOL_PROFILE=full` if you need the complete Kanboard API
+surface. `KANBOARD_ENABLED_TOOL_MODULES` limits which modules are registered, but
+it does not override the selected profile; use `full` to expose non-core tools
+from an allowed module.
 
 ## Troubleshooting
 

@@ -369,6 +369,11 @@ def test_create_and_update_task_include_all_optional_fields(fake_mcp):
         column_id=5,
         swimlane_id=6,
         priority=2,
+        recurrence_status=1,
+        recurrence_trigger=2,
+        recurrence_factor=3,
+        recurrence_timeframe=1,
+        recurrence_basedate=0,
         reference="REF",
         tags=["homelab"],
     )
@@ -381,6 +386,11 @@ def test_create_and_update_task_include_all_optional_fields(fake_mcp):
         date_due="2026-06-02",
         color_id="green",
         priority=1,
+        recurrence_status=1,
+        recurrence_trigger=2,
+        recurrence_factor=3,
+        recurrence_timeframe=1,
+        recurrence_basedate=0,
         reference="REF2",
     )
 
@@ -397,6 +407,11 @@ def test_create_and_update_task_include_all_optional_fields(fake_mcp):
         "column_id": 5,
         "swimlane_id": 6,
         "priority": 2,
+        "recurrence_status": 1,
+        "recurrence_trigger": 2,
+        "recurrence_factor": 3,
+        "recurrence_timeframe": 1,
+        "recurrence_basedate": 0,
         "reference": "REF",
         "tags": ["homelab"],
     }
@@ -410,5 +425,10 @@ def test_create_and_update_task_include_all_optional_fields(fake_mcp):
         "date_due": "2026-06-02",
         "color_id": "green",
         "priority": 1,
+        "recurrence_status": 1,
+        "recurrence_trigger": 2,
+        "recurrence_factor": 3,
+        "recurrence_timeframe": 1,
+        "recurrence_basedate": 0,
         "reference": "REF2",
     }

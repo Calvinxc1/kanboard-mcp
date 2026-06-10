@@ -287,19 +287,6 @@ from kanboard_mcp.tools import (
         ),
         (
             subtasks,
-            "updateSubtask",
-            {"subtask_id": 14, "title": "Cable neatly", "time_spent": 1},
-            True,
-            {"success": True, "data": {"updated": True}},
-            {
-                "method_name": "update_subtask",
-                "id": 14,
-                "title": "Cable neatly",
-                "time_spent": 1,
-            },
-        ),
-        (
-            subtasks,
             "removeSubtask",
             {"subtask_id": 14},
             True,
@@ -420,6 +407,51 @@ def test_simple_tool_wrapper_success(
 
     assert result == expected
     assert client.calls == [{"args": (), "kwargs": expected_kwargs}]
+
+
+def test_update_subtask_resolves_parent_task_id_before_update(fake_mcp):
+    client = ScriptedClient(responses=[{"id": 14, "task_id": 42}, True])
+    subtasks.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["updateSubtask"](
+        subtask_id=14, title="Cable neatly", time_spent=1
+    )
+
+    assert result == {"success": True, "data": {"updated": True}}
+    assert client.calls == [
+        {
+            "args": (),
+            "kwargs": {"method_name": "get_subtask", "subtask_id": 14},
+        },
+        {
+            "args": (),
+            "kwargs": {
+                "method_name": "update_subtask",
+                "id": 14,
+                "task_id": 42,
+                "title": "Cable neatly",
+                "time_spent": 1,
+            },
+        },
+    ]
+
+
+def test_update_subtask_returns_error_when_parent_task_id_is_unavailable(fake_mcp):
+    client = ScriptedClient(responses=[{"id": 14}])
+    subtasks.register_tools(fake_mcp, client)
+
+    result = fake_mcp.tools["updateSubtask"](subtask_id=14, status=2)
+
+    assert result == {
+        "success": False,
+        "error": "Unable to resolve task_id for subtask 14",
+    }
+    assert client.calls == [
+        {
+            "args": (),
+            "kwargs": {"method_name": "get_subtask", "subtask_id": 14},
+        }
+    ]
 
 
 def test_update_project_sends_minimal_project_id_and_name_payload(fake_mcp):

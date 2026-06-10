@@ -179,8 +179,8 @@ Replace `/path/to/kanboard-mcp` with your local clone path.
 The server provides built-in tools for testing:
 
 - `test_connection`: Test connection to Kanboard
-- `get_server_info`: Get server information and capabilities
 - `get_config_info`: Get current configuration (without sensitive data)
+- `get_server_info`: Get server information and capabilities (`full` profile only)
 
 `get_config_info` also reports the Python executable and connector module paths
 currently serving the MCP process. Use those paths to confirm the client is
@@ -188,7 +188,8 @@ running the intended editable clone after local source edits.
 
 ### Tool Profiles
 
-The default MCP API profile is `core`, which keeps the daily-driver tool surface small for lower token usage.
+The default Kanboard MCP tool profile is `core`, which keeps the daily-driver
+tool surface small for lower token usage.
 
 The `core` profile exposes task, comment, project, board lookup, and basic
 diagnostic tools used for common board workflows. It omits tag management by
@@ -198,50 +199,83 @@ management and rare or higher-risk tools such as deletion, file management, link
 type mutation, column mutation, swimlane mutation, and broad user/dashboard
 helpers.
 
+Core profile tools:
+
+- `getTask`
+- `searchTasks`
+- `getAllTasks`
+- `createTask`
+- `updateTask`
+- `moveTaskToColumnByName`
+- `openTask`
+- `closeTask`
+- `createComment`
+- `getAllComments`
+- `getAllProjects`
+- `getColumns`
+- `getBoard`
+- `test_connection`
+- `get_config_info`
+
 You can also limit registration to specific tool modules:
 
 ```env
 KANBOARD_ENABLED_TOOL_MODULES=tasks,comments,boards
 ```
 
-When this variable is set, only the listed modules are registered. Connection
-helper tools are still controlled by the selected tool profile.
+When this variable is set, only the listed modules are registered. The module
+allowlist does not override the selected tool profile: `core` still exposes only
+core tool names from the allowed modules. Use `KANBOARD_TOOL_PROFILE=full` when
+you need non-core tools from an allowed module. Connection helper tools are still
+controlled by the selected tool profile.
+
+### Summary Responses
+
+To reduce token usage, list, search, board, and dashboard-style tools return
+summary projections rather than raw Kanboard records. High-token fields such as
+long descriptions, nested color objects, recurrence metadata, URLs, and redundant
+board nesting fields are omitted from bulk responses. Use detail reads such as
+`getTask(task_id)` when you need task body text or comment/subtask counts.
 
 ## API Tools
 
+The lists below describe the complete API surface. Tools marked `core` are
+available by default; tools marked `full` require `KANBOARD_TOOL_PROFILE=full`.
+
 ### Projects
 
-- `getAllProjects()`: Get all projects
-- `getProjectById(project_id)`: Get project by ID
-- `getProjectByName(project_name)`: Get project by name
-- `getProjectActivity(project_id)`: Get project activity
-- `getProjectActivities(project_id)`: Get project activities
+- `getAllProjects()` (`core`): Get all projects
+- `getProjectById(project_id)` (`full`): Get project by ID
+- `getProjectByName(project_name)` (`full`): Get project by name
+- `getProjectActivity(project_id)` (`full`): Get project activity
+- `getProjectActivities(project_id)` (`full`): Get project activities
 
 ### Tasks
 
-- `getAllTasks(project_id, status_id?)`: Get all tasks for a project
-- `getTask(task_id)`: Get specific task
-- `getTaskByReference(project_id, reference)`: Get task by reference
-- `getOverdueTasks()`: Get all overdue tasks
-- `getOverdueTasksByProject(project_id)`: Get overdue tasks for project
-- `createTask(project_id, title, ...)`: Create new task
-- `updateTask(task_id, ...)`: Update existing task
-- `openTask(task_id)`: Open task
-- `closeTask(task_id)`: Close task
-- `removeTask(task_id)`: Delete task
-- `searchTasks(project_id, query)`: Search tasks with Kanboard search syntax. Free text searches task ID/title; use filters inside `query`, such as `status:open`, `status:closed`, `description:"runtime dependencies"`, or `category:1234`.
+- `getAllTasks(project_id, status_id?)` (`core`): Get all tasks for a project
+- `getTask(task_id)` (`core`): Get specific task
+- `getTaskByReference(project_id, reference)` (`full`): Get task by reference
+- `getOverdueTasks()` (`full`): Get all overdue tasks
+- `getOverdueTasksByProject(project_id)` (`full`): Get overdue tasks for project
+- `createTask(project_id, title, ...)` (`core`): Create new task
+- `updateTask(task_id, ...)` (`core`): Update existing task
+- `openTask(task_id)` (`core`): Open task
+- `closeTask(task_id)` (`core`): Close task
+- `removeTask(task_id)` (`full`): Delete task
+- `searchTasks(project_id, query)` (`core`): Search tasks with Kanboard search syntax. Free text searches task ID/title; use filters inside `query`, such as `status:open`, `status:closed`, `description:"runtime dependencies"`, or `category:1234`.
 
 ### Comments
 
-- `createComment(task_id, content, user_id?)`: Create comment
-- `getComment(comment_id)`: Get comment
-- `getAllComments(task_id)`: Get all comments for task
-- `updateComment(comment_id, content)`: Update comment
-- `removeComment(comment_id)`: Delete comment
+- `createComment(task_id, content, user_id?)` (`core`): Create comment
+- `getComment(comment_id)` (`full`): Get comment
+- `getAllComments(task_id)` (`core`): Get all comments for task
+- `updateComment(comment_id, content)` (`full`): Update comment
+- `removeComment(comment_id)` (`full`): Delete comment
 
 ### And many more...
 
-See the individual tool modules in `src/kanboard_mcp/tools/` for complete API documentation.
+Set `KANBOARD_TOOL_PROFILE=full` and see the individual tool modules in
+`src/kanboard_mcp/tools/` for the complete API surface.
 
 ## Error Handling
 
