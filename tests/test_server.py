@@ -1,7 +1,11 @@
+from pathlib import Path
+
 import pytest
 
 from kanboard_mcp.config import Config, KanboardConfig, MCPServerConfig
-from kanboard_mcp.server import KanboardMCPServer, create_server
+from kanboard_mcp.server import CORE_TOOL_NAMES, KanboardMCPServer, create_server
+
+README_PATH = Path(__file__).resolve().parents[1] / "README.md"
 
 
 class FakeFastMCP:
@@ -134,26 +138,25 @@ def test_core_tool_profile_registers_reduced_daily_driver_surface(monkeypatch):
 
     server = KanboardMCPServer(make_config(tool_profile="core"))
 
-    assert set(server.mcp.tools) == {
-        "getTask",
-        "searchTasks",
-        "getAllTasks",
-        "createTask",
-        "updateTask",
-        "moveTaskToColumnByName",
-        "openTask",
-        "closeTask",
-        "createComment",
-        "getAllComments",
-        "getAllProjects",
-        "getColumns",
-        "getBoard",
-        "test_connection",
-        "get_config_info",
-    }
+    assert set(server.mcp.tools) == CORE_TOOL_NAMES
     assert "removeTask" not in server.mcp.tools
     assert "get_server_info" not in server.mcp.tools
     assert server.mcp.tools["get_config_info"]()["data"]["tool_profile"] == "core"
+
+
+def test_readme_core_tool_list_matches_runtime_allowlist():
+    readme = README_PATH.read_text()
+    section = readme.split("Core profile tools:", maxsplit=1)[1].split(
+        "You can also limit registration", maxsplit=1
+    )[0]
+
+    documented_tools = {
+        line.strip().removeprefix("- `").removesuffix("`")
+        for line in section.splitlines()
+        if line.strip().startswith("- `")
+    }
+
+    assert documented_tools == CORE_TOOL_NAMES
 
 
 def test_enabled_tool_modules_limits_registered_modules(monkeypatch):
@@ -170,6 +173,33 @@ def test_enabled_tool_modules_limits_registered_modules(monkeypatch):
     assert "getAllProjects" not in server.mcp.tools
     assert "createComment" not in server.mcp.tools
     assert "test_connection" in server.mcp.tools
+
+
+def test_module_allowlist_intersects_with_core_profile(monkeypatch):
+    fake_client = FakeServerClient()
+    monkeypatch.setattr("kanboard_mcp.server.FastMCP", FakeFastMCP)
+    monkeypatch.setattr("kanboard_mcp.server.create_client", lambda _: fake_client)
+
+    server = KanboardMCPServer(
+        make_config(tool_profile="core", enabled_tool_modules=("tags",))
+    )
+
+    assert set(server.mcp.tools) == {"test_connection", "get_config_info"}
+
+
+def test_module_allowlist_exposes_non_core_tools_in_full_profile(monkeypatch):
+    fake_client = FakeServerClient()
+    monkeypatch.setattr("kanboard_mcp.server.FastMCP", FakeFastMCP)
+    monkeypatch.setattr("kanboard_mcp.server.create_client", lambda _: fake_client)
+
+    server = KanboardMCPServer(
+        make_config(tool_profile="full", enabled_tool_modules=("tags",))
+    )
+
+    assert "setTaskTags" in server.mcp.tools
+    assert "getTask" not in server.mcp.tools
+    assert "test_connection" in server.mcp.tools
+    assert "get_server_info" in server.mcp.tools
 
 
 def test_connection_helpers_redact_user_records(monkeypatch):
