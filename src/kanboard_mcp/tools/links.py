@@ -9,6 +9,56 @@ from ..client import KanboardClient, KanboardClientError
 
 logger = logging.getLogger(__name__)
 
+LINK_TYPE_SUMMARY_FIELDS = ("id", "label", "opposite_id", "opposite_label")
+TASK_LINK_SUMMARY_FIELDS = (
+    "id",
+    "link_id",
+    "label",
+    "opposite_task_id",
+    "opposite_title",
+    "is_active",
+)
+
+
+def summarize_link_type(link: Any) -> Any:
+    """Return compact link type fields for list responses."""
+    if not isinstance(link, dict):
+        return link
+
+    return {
+        field: link[field]
+        for field in LINK_TYPE_SUMMARY_FIELDS
+        if field in link and link[field] not in (None, "")
+    }
+
+
+def summarize_link_types(links: Any) -> Any:
+    """Return compact link type projections while preserving non-list API results."""
+    if not isinstance(links, list):
+        return links
+
+    return [summarize_link_type(link) for link in links]
+
+
+def summarize_task_link(link: Any) -> Any:
+    """Return compact task link fields for list responses."""
+    if not isinstance(link, dict):
+        return link
+
+    return {
+        field: link[field]
+        for field in TASK_LINK_SUMMARY_FIELDS
+        if field in link and link[field] not in (None, "")
+    }
+
+
+def summarize_task_links(links: Any) -> Any:
+    """Return compact task link projections while preserving non-list API results."""
+    if not isinstance(links, list):
+        return links
+
+    return [summarize_task_link(link) for link in links]
+
 
 def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     """Register link-related tools."""
@@ -65,7 +115,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """Get all links for a task."""
         try:
             links = client.call_api(method_name="get_all_task_links", task_id=task_id)
-            return {"success": True, "data": links, "count": len(links) if links else 0}
+            return {
+                "success": True,
+                "data": summarize_task_links(links),
+                "count": len(links) if links else 0,
+            }
         except KanboardClientError as e:
             logger.error(f"Error getting all task links for task {task_id}: {e}")
             return {"success": False, "error": str(e)}
@@ -87,7 +141,11 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
         """Get all available link types."""
         try:
             links = client.call_api(method_name="get_all_links")
-            return {"success": True, "data": links, "count": len(links) if links else 0}
+            return {
+                "success": True,
+                "data": summarize_link_types(links),
+                "count": len(links) if links else 0,
+            }
         except KanboardClientError as e:
             logger.error(f"Error getting all links: {e}")
             return {"success": False, "error": str(e)}

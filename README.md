@@ -191,12 +191,13 @@ running the intended editable clone after local source edits.
 The default Kanboard MCP tool profile is `core`, which keeps the daily-driver
 tool surface small for lower token usage.
 
-The `core` profile exposes task, comment, project, board lookup, and basic
-diagnostic tools used for common board workflows. It omits tag management by
-default because active Homelab tasks no longer carry tag assignments. Set
+The `core` profile exposes task, subtask, category lookup, task-link, comment,
+project, board lookup, and basic diagnostic tools used for common board
+workflows. It omits tag management by default because active Homelab tasks no
+longer carry tag assignments. Set
 `KANBOARD_TOOL_PROFILE=full` if you need the complete API surface, including tag
-management and rare or higher-risk tools such as deletion, file management, link
-type mutation, column mutation, swimlane mutation, and broad user/dashboard
+management and rare or higher-risk tools such as task deletion, file management,
+link type mutation, column mutation, swimlane mutation, and broad user/dashboard
 helpers.
 
 Core profile tools:
@@ -209,8 +210,23 @@ Core profile tools:
 - `moveTaskToColumnByName`
 - `openTask`
 - `closeTask`
+- `getAllCategories`
 - `createComment`
 - `getAllComments`
+- `createSubtask`
+- `getSubtask`
+- `getAllSubtasks`
+- `updateSubtask`
+- `removeSubtask`
+- `createTaskLink`
+- `updateTaskLink`
+- `getTaskLinkById`
+- `getAllTaskLinks`
+- `removeTaskLink`
+- `getAllLinks`
+- `getLinkByLabel`
+- `getLinkById`
+- `getOppositeLinkId`
 - `getAllProjects`
 - `getColumns`
 - `getBoard`
@@ -263,6 +279,14 @@ available by default; tools marked `full` require `KANBOARD_TOOL_PROFILE=full`.
 - `closeTask(task_id)` (`core`): Close task
 - `removeTask(task_id)` (`full`): Delete task
 - `searchTasks(project_id, query)` (`core`): Search tasks with Kanboard search syntax. Free text searches task ID/title; use filters inside `query`, such as `status:open`, `status:closed`, `description:"runtime dependencies"`, or `category:1234`.
+
+`createTask`, `updateTask`, and active `getTask` detail reads support Kanboard
+recurrence fields: `recurrence_status`, `recurrence_trigger`,
+`recurrence_timeframe`, `recurrence_basedate`, and `recurrence_factor`.
+Common Kanboard values are status `0` none, `1` pending, `2` processed; trigger
+`0` first column, `1` closing, `2` moving to any column; timeframe `0` days,
+`1` months, `2` years; basedate `0` due date, `1` action date. Kanboard creates
+the next recurring task in the board's first column.
 
 ### Comments
 

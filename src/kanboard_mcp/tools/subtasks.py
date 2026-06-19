@@ -9,6 +9,41 @@ from ..client import KanboardClient, KanboardClientError
 
 logger = logging.getLogger(__name__)
 
+SUBTASK_SUMMARY_FIELDS = (
+    "id",
+    "title",
+    "status",
+    "user_id",
+    "username",
+    "time_estimated",
+    "time_spent",
+)
+
+
+def include_subtask_summary_field(value: Any) -> bool:
+    """Return whether a subtask summary value carries useful information."""
+    return value not in (None, "")
+
+
+def summarize_subtask(subtask: Any) -> Any:
+    """Return compact subtask fields for list responses."""
+    if not isinstance(subtask, dict):
+        return subtask
+
+    return {
+        field: subtask[field]
+        for field in SUBTASK_SUMMARY_FIELDS
+        if field in subtask and include_subtask_summary_field(subtask[field])
+    }
+
+
+def summarize_subtasks(subtasks: Any) -> Any:
+    """Return compact subtask projections while preserving non-list API results."""
+    if not isinstance(subtasks, list):
+        return subtasks
+
+    return [summarize_subtask(subtask) for subtask in subtasks]
+
 
 def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
     """Register subtask-related tools."""
@@ -58,7 +93,7 @@ def register_tools(mcp: FastMCP, client: KanboardClient) -> None:
             subtasks = client.call_api(method_name="get_all_subtasks", task_id=task_id)
             return {
                 "success": True,
-                "data": subtasks,
+                "data": summarize_subtasks(subtasks),
                 "count": len(subtasks) if subtasks else 0,
             }
         except KanboardClientError as e:

@@ -1,5 +1,7 @@
 from conftest import FakeMCP, ScriptedClient
 
+from kanboard_mcp.config import Config, KanboardConfig
+from kanboard_mcp.server import create_server
 from kanboard_mcp.tools import (
     boards,
     categories,
@@ -44,6 +46,8 @@ def test_all_tool_modules_register_expected_tools():
         "setTaskTags",
         "getTaskTags",
         "createComment",
+        "createSubtask",
+        "getAllSubtasks",
         "updateComment",
         "changeColumnPosition",
         "changeSwimlanePosition",
@@ -53,3 +57,18 @@ def test_all_tool_modules_register_expected_tools():
         "createTaskFile",
         "createTaskLink",
     }
+
+
+def test_default_core_profile_registers_subtask_helper_tools():
+    config = Config(
+        kanboard=KanboardConfig(
+            url="http://example.invalid/jsonrpc.php",
+            username="jsonrpc",
+            password="redacted",
+        )
+    )
+
+    server = create_server(config)
+
+    tool_names = {tool.name for tool in server.mcp._tool_manager.list_tools()}
+    assert {"createSubtask", "getAllSubtasks"} <= tool_names
