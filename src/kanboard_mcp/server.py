@@ -79,6 +79,7 @@ CORE_TOOL_NAMES = frozenset(
         "getAllProjects",
         "getColumns",
         "getBoard",
+        "getMe",
         "test_connection",
         "get_config_info",
     }

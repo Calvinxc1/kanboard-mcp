@@ -71,4 +71,4 @@ def test_default_core_profile_registers_subtask_helper_tools():
     server = create_server(config)
 
     tool_names = {tool.name for tool in server.mcp._tool_manager.list_tools()}
-    assert {"createSubtask", "getAllSubtasks"} <= tool_names
+    assert {"createSubtask", "getAllSubtasks", "getMe"} <= tool_names

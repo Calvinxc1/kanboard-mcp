@@ -230,6 +230,7 @@ Core profile tools:
 - `getAllProjects`
 - `getColumns`
 - `getBoard`
+- `getMe`
 - `test_connection`
 - `get_config_info`
 
